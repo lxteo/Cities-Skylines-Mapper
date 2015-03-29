@@ -86,7 +86,7 @@ namespace Mapper
             maxBounds = tiles * 1920;
             roadTypeMapping.Add(new KeyValuePair<string, string>("highway", "motorway"), RoadTypes.Highway);
             roadTypeMapping.Add(new KeyValuePair<string, string>("highway", "trunk"), RoadTypes.LargeRoadDecorationGrass);
-            roadTypeMapping.Add(new KeyValuePair<string, string>("highway", "primary"), RoadTypes.LargeRoad);
+            roadTypeMapping.Add(new KeyValuePair<string, string>("highway", "primary"), RoadTypes.MediumRoad);
             roadTypeMapping.Add(new KeyValuePair<string, string>("highway", "secondary"), RoadTypes.MediumRoad);
             roadTypeMapping.Add(new KeyValuePair<string, string>("highway", "tertiary"), RoadTypes.MediumRoadDecorationGrass);
             roadTypeMapping.Add(new KeyValuePair<string, string>("highway", "unclassified"), RoadTypes.BasicRoad);
@@ -102,12 +102,12 @@ namespace Mapper
             roadTypeMapping.Add(new KeyValuePair<string, string>("highway", "secondary_link"), RoadTypes.HighwayRamp);
             roadTypeMapping.Add(new KeyValuePair<string, string>("highway", "tertiary_link"), RoadTypes.HighwayRamp);
             roadTypeMapping.Add(new KeyValuePair<string, string>("highway", "raceway"), RoadTypes.HighwayRamp);
-            //roadTypeMapping.Add(new KeyValuePair<string, string>("highway", "pedestrian"), RoadTypes.PedestrianPavement);
-            //roadTypeMapping.Add(new KeyValuePair<string, string>("highway", "footway"), RoadTypes.PedestrianPavement);
-            //roadTypeMapping.Add(new KeyValuePair<string, string>("highway", "steps"), RoadTypes.PedestrianPavement);
-            //roadTypeMapping.Add(new KeyValuePair<string, string>("highway", "bridleway"), RoadTypes.PedestrianPavement);
-            //roadTypeMapping.Add(new KeyValuePair<string, string>("highway", "cycleway"), RoadTypes.PedestrianPavement);
-            //roadTypeMapping.Add(new KeyValuePair<string, string>("highway", "path"), RoadTypes.PedestrianGravel);
+            roadTypeMapping.Add(new KeyValuePair<string, string>("highway", "pedestrian"), RoadTypes.PedestrianPavement);
+            roadTypeMapping.Add(new KeyValuePair<string, string>("highway", "footway"), RoadTypes.PedestrianPavement);
+            roadTypeMapping.Add(new KeyValuePair<string, string>("highway", "steps"), RoadTypes.PedestrianPavement);
+            roadTypeMapping.Add(new KeyValuePair<string, string>("highway", "bridleway"), RoadTypes.PedestrianPavement);
+            roadTypeMapping.Add(new KeyValuePair<string, string>("highway", "cycleway"), RoadTypes.PedestrianPavement);
+            roadTypeMapping.Add(new KeyValuePair<string, string>("highway", "path"), RoadTypes.PedestrianGravel);
         }
 
 
@@ -160,14 +160,15 @@ namespace Mapper
                     return RoadTypes.OnewayRoad;
                 case RoadTypes.BasicRoadDecorationTrees:
                 case RoadTypes.MediumRoadDecorationTrees:
-                case RoadTypes.MediumRoadDecorationGrass:
                     return RoadTypes.OnewayRoadDecorationTrees;
-                case RoadTypes.LargeRoad:
-                    return RoadTypes.LargeOneway;
+                case RoadTypes.MediumRoadDecorationGrass:
+                case RoadTypes.BasicRoadDecorationGrass:
+                    return RoadTypes.OnewayRoadDecorationGrass;
+                case RoadTypes.LargeRoad:                    
                 case RoadTypes.LargeRoadDecorationGrass:
-                    return RoadTypes.LargeOnewayDecorationGrass;
-                case RoadTypes.LargeOnewayDecorationTrees:
-                    return RoadTypes.LargeOnewayDecorationTrees;
+                case RoadTypes.LargeRoadDecorationTrees:
+                case RoadTypes.Highway:
+                    return RoadTypes.Highway;
                 case RoadTypes.GravelRoad:
                     return RoadTypes.OnewayRoad;
                 case RoadTypes.HighwayRamp:
@@ -191,8 +192,8 @@ namespace Mapper
             var lat = Deg2rad(this.middleLatLon.y);
             var radius = WGS84EarthRadius(lat);
             var pradius = radius * Math.Cos(lat);
-            scaleX = scale * GameSizeGameCoordinates / Rad2deg(GameSizeMetres / radius);
-            scaleY = scale * GameSizeGameCoordinates / Rad2deg(GameSizeMetres / pradius);
+            scaleX = scale * GameSizeGameCoordinates / Rad2deg(GameSizeMetres / pradius);
+            scaleY = scale * GameSizeGameCoordinates / Rad2deg(GameSizeMetres / radius);
 
         }
 
@@ -211,10 +212,9 @@ namespace Mapper
                 return false;
             }
 
-            //pos -= new Vector2(1920f * 0.5f, 1920f * 0.5f);
+            //pos += new Vector2(1920f * 0.5f, 1920f * -0.5f);
             return true;
         }
-
 
         private const double WGS84_a = 6378137.0; // Major semiaxis [m]
         private const double WGS84_b = 6356752.3; // Minor semiaxis [m]

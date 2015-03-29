@@ -41,6 +41,11 @@ namespace Mapper
         public IEnumerator MakeRoad(int p)
         {
             var nm = Singleton<NetManager>.instance;
+
+            if (! nm.CheckLimits())
+            {
+                yield return null;
+            }
             var way = osm.processedWays[p];
             NetInfo ni = null;
             
@@ -135,8 +140,8 @@ namespace Mapper
 
         private void CreateNode(out ushort startNode, ref Randomizer rand, NetInfo netInfo, Vector2 oldPos)
         {
-            var pos = new Vector3(oldPos.x, 0, oldPos.y);            
-            pos.y = Singleton<TerrainManager>.instance.SampleRawHeightSmooth(pos);
+            var pos = new Vector3(oldPos.x, 0, oldPos.y);
+            pos.y = Singleton<TerrainManager>.instance.SampleRawHeightSmoothWithWater(pos,false,0f);
             var nm = Singleton<NetManager>.instance;
             nm.CreateNode(out startNode, ref rand, netInfo, pos, Singleton<SimulationManager>.instance.m_currentBuildIndex);
             Singleton<SimulationManager>.instance.m_currentBuildIndex += 1u;

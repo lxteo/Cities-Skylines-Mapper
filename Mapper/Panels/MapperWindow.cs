@@ -8,6 +8,7 @@ using ColossalFramework.UI;
 using System.Reflection;
 using System.Timers;
 using UnityEngine;
+using System.IO;
 
 namespace Mapper
 {
@@ -34,6 +35,8 @@ namespace Mapper
         UITextField tiles;
         UILabel tilesLabel;
 
+        UILabel errorLabel;
+
         public ICities.LoadMode mode;
         RoadMaker roadMaker;
         bool createRoads;
@@ -59,6 +62,8 @@ namespace Mapper
 
             tiles = AddUIComponent<UITextField>();
             tilesLabel = AddUIComponent<UILabel>();
+
+            errorLabel = AddUIComponent<UILabel>();
 
             okButton = AddUIComponent<UIButton>();
 
@@ -110,7 +115,7 @@ namespace Mapper
             y += vertPadding;
 
             SetLabel(toleranceLabel, "Tolerance", x, y);
-            SetTextBox(tolerance, "10", x + 120, y);
+            SetTextBox(tolerance, "20", x + 120, y);
             y += vertPadding;
 
             SetLabel(curveToleranceLabel, "Curve Tolerance", x, y);
@@ -119,6 +124,9 @@ namespace Mapper
 
             SetLabel(tilesLabel, "Tiles to Boundary", x, y);
             SetTextBox(tiles, "4", x + 120, y);
+            y += vertPadding;
+
+            SetLabel(errorLabel, "", x, y);
             y += vertPadding;
 
             okButton.text = "Import";
@@ -159,20 +167,63 @@ namespace Mapper
 
         private void okButton_eventClick(UIComponent component, UIMouseEventParameter eventParam)
         {
-            roadMaker = new RoadMaker(pathTextBox.text.Trim(), pedestriansCheck.IsChecked, double.Parse(scaleTextBox.text.Trim()), double.Parse(tolerance.text.Trim()), double.Parse(curveTolerance.text.Trim()), double.Parse(tiles.text.Trim()));
-            createRoads = !createRoads;   
+            var path = pathTextBox.text.Trim();
+            if (!File.Exists(path))
+            {
+                path += ".osm";
+                if (!File.Exists(path))
+                {
+                    errorLabel.text = "Cannot find osm file: " + path;
+                    return;
+                }                
+            }
+            try
+            {
+                roadMaker = new RoadMaker(pathTextBox.text.Trim(), pedestriansCheck.IsChecked, double.Parse(scaleTextBox.text.Trim()), double.Parse(tolerance.text.Trim()), double.Parse(curveTolerance.text.Trim()), double.Parse(tiles.text.Trim()));
+                currentIndex = 0;
+                createRoads = !createRoads;   
+            }
+            catch (FormatException ex) {
+                errorLabel.text = "Parameter must be valid number.";
+            }
+            catch (Exception ex)
+            {
+                errorLabel.text = ex.ToString();
+                throw ex;
+            }            
         }
 
         public override void Update()
         {
-            if (createRoads && currentIndex < roadMaker.osm.processedWays.Count())
+            if (createRoads)
             {
-                SimulationManager.instance.AddAction(roadMaker.MakeRoad(currentIndex));
-                currentIndex += 1;
-                SimulationManager.instance.AddAction(roadMaker.MakeRoad(currentIndex));
-                currentIndex += 1;
+                if (currentIndex < roadMaker.osm.processedWays.Count())
+                {
+                    SimulationManager.instance.AddAction(roadMaker.MakeRoad(currentIndex));
+                    currentIndex += 1;
+                }
+
+                if (currentIndex < roadMaker.osm.processedWays.Count())
+                {
+                    SimulationManager.instance.AddAction(roadMaker.MakeRoad(currentIndex));
+                    currentIndex += 1;
+                }
+
+                if (currentIndex < roadMaker.osm.processedWays.Count())
+                {
+                    SimulationManager.instance.AddAction(roadMaker.MakeRoad(currentIndex));
+                    currentIndex += 1;
+                    var instance = Singleton<NetManager>.instance;                    
+                    errorLabel.text = String.Format("Making road {0} out of {1}. Nodes: {2}. Segments: {3}", currentIndex, roadMaker.osm.processedWays.Count(),instance.m_nodeCount, instance.m_segmentCount);
+                }
             }
-            this.pedestriansCheck.Update();            
+
+            if (roadMaker  != null && currentIndex == roadMaker.osm.processedWays.Count())
+            {
+                errorLabel.text = "Done.";
+                createRoads = false;
+                roadMaker = null;
+            }
             base.Update();
         }
     }

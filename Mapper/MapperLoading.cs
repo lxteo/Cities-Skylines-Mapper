@@ -18,7 +18,7 @@ namespace Mapper
 
         public override void OnLevelLoaded(LoadMode mode)
         {
-            if (mode != LoadMode.NewMap && mode != LoadMode.LoadMap)
+            if (mode != LoadMode.LoadGame && mode != LoadMode.NewGame)
                 return;
             _mode = mode;
 
@@ -30,7 +30,7 @@ namespace Mapper
             this.buildingWindow.position = new Vector3(300, 122);
             this.buildingWindow.Hide();
 
-            var strip = UIView.Find<UITabstrip>("MainToolstrip");
+            var strip = ToolsModifierControl.mainToolbar.component as UITabstrip;
             GameObject asGameObject = UITemplateManager.GetAsGameObject("MainToolbarButtonTemplate");
             GameObject asGameObject2 = UITemplateManager.GetAsGameObject("ScrollablePanelTemplate");
             var uiButton = strip.AddTab("mapperMod", asGameObject, asGameObject2, new Type[] {});
@@ -55,7 +55,7 @@ namespace Mapper
 
         public override void OnLevelUnloading()
         {
-            if (_mode != LoadMode.NewMap && _mode != LoadMode.LoadMap)
+            if (_mode != LoadMode.LoadGame && _mode != LoadMode.NewGame)
                 return;
 
 

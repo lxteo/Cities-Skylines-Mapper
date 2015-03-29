@@ -61,10 +61,7 @@ namespace Mapper
                         var pp = points[i];
                         if (nodes.ContainsKey(pp))
                         {
-                            if (i == points.Count-1 || (nodes[pp] - previousPoint).sqrMagnitude > 14)
-                            {
-                                currentList.Add(pp);
-                            }
+                            currentList.Add(pp);
                             previousPoint = nodes[pp];
                         }
                         else

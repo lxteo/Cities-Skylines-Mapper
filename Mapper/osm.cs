@@ -243,7 +243,7 @@ namespace Mapper
 
         private decimal lonField;
 
-        private byte versionField;
+        private int versionField;
 
         private System.DateTime timestampField;
 
@@ -311,7 +311,7 @@ namespace Mapper
 
         /// <remarks/>
         [System.Xml.Serialization.XmlAttributeAttribute()]
-        public byte version
+        public int version
         {
             get
             {
@@ -429,7 +429,7 @@ namespace Mapper
 
         private uint idField;
 
-        private byte versionField;
+        private int versionField;
 
         private System.DateTime timestampField;
 
@@ -483,7 +483,7 @@ namespace Mapper
 
         /// <remarks/>
         [System.Xml.Serialization.XmlAttributeAttribute()]
-        public byte version
+        public int version
         {
             get
             {
@@ -623,7 +623,7 @@ namespace Mapper
 
         private uint idField;
 
-        private byte versionField;
+        private int versionField;
 
         private System.DateTime timestampField;
 
@@ -677,7 +677,7 @@ namespace Mapper
 
         /// <remarks/>
         [System.Xml.Serialization.XmlAttributeAttribute()]
-        public byte version
+        public int version
         {
             get
             {
