@@ -70,9 +70,9 @@ namespace Mapper
 
     public class RoadMapping
     {
-        public const int GameSizeMetres = 14000;
-        public const int GameSizeGameCoordinates = 1920 * 7;
-
+        public const int GameSizeMetres = 18000;
+        public const int GameSizeGameCoordinates = 1920 * 9;
+        double maxBounds;
         private Dictionary<KeyValuePair<string, string>, RoadTypes> roadTypeMapping = new Dictionary<KeyValuePair<string, string>, RoadTypes>();
         
         //private Vector2 startLatLon = new Vector2(float.MaxValue, float.MaxValue);
@@ -81,9 +81,9 @@ namespace Mapper
         double scaleX;
         double scaleY;
 
-        public RoadMapping()
+        public RoadMapping(double tiles)
         {
-
+            maxBounds = tiles * 1920;
             roadTypeMapping.Add(new KeyValuePair<string, string>("highway", "motorway"), RoadTypes.Highway);
             roadTypeMapping.Add(new KeyValuePair<string, string>("highway", "trunk"), RoadTypes.LargeRoadDecorationGrass);
             roadTypeMapping.Add(new KeyValuePair<string, string>("highway", "primary"), RoadTypes.LargeRoad);
@@ -184,15 +184,15 @@ namespace Mapper
         //    endLatLon = new Vector2(Math.Max(endLatLon.x, (float)node.lon), Math.Max(endLatLon.y, (float)node.lat));
         //}
 
-        public void InitBoundingBox(osmBounds bounds)
+        public void InitBoundingBox(osmBounds bounds,double scale)
         {
 
             this.middleLatLon = new Vector2((float)(bounds.minlon + bounds.maxlon) / 2f, (float)(bounds.minlat + bounds.maxlat) / 2f);
             var lat = Deg2rad(this.middleLatLon.y);
             var radius = WGS84EarthRadius(lat);
             var pradius = radius * Math.Cos(lat);
-            scaleX = GameSizeGameCoordinates / Rad2deg(GameSizeMetres / radius);
-            scaleY = GameSizeGameCoordinates / Rad2deg(GameSizeMetres / pradius);
+            scaleX = scale * GameSizeGameCoordinates / Rad2deg(GameSizeMetres / radius);
+            scaleY = scale * GameSizeGameCoordinates / Rad2deg(GameSizeMetres / pradius);
 
         }
 
@@ -206,7 +206,7 @@ namespace Mapper
         {            
             pos = new Vector2((float)(((float)lon - middleLatLon.x) * scaleX), (float)(((float)lat - middleLatLon.y) * scaleY));
 
-            if (Math.Abs(pos.x) > GameSizeGameCoordinates / 2.2 || Math.Abs(pos.y) > GameSizeGameCoordinates / 2.2)
+            if (Math.Abs(pos.x) > maxBounds || Math.Abs(pos.y) > maxBounds)
             {
                 return false;
             }

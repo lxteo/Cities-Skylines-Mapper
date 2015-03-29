@@ -12,57 +12,56 @@ namespace Mapper
 {
     public class MapperLoading : LoadingExtensionBase
     {
-        static GameObject buildingWindowGameObject;
+        GameObject buildingWindowGameObject;
         MapperWindow buildingWindow;
         private LoadMode _mode;
 
         public override void OnLevelLoaded(LoadMode mode)
         {
-            if (mode != LoadMode.LoadGame && mode != LoadMode.NewGame)
+            if (mode != LoadMode.NewMap && mode != LoadMode.LoadMap)
                 return;
             _mode = mode;
 
             buildingWindowGameObject = new GameObject("buildingWindowObject");
+
             var view = UIView.GetAView();
             this.buildingWindow = buildingWindowGameObject.AddComponent<MapperWindow>();
             this.buildingWindow.transform.parent = view.transform;
-            this.buildingWindow.size = new Vector3(200,50);
-            //this.buildingWindow.baseBuildingWindow = buildingInfo.gameObject.transform.GetComponentInChildren<ZonedBuildingWorldInfoPanel>();
             this.buildingWindow.position = new Vector3(300, 122);
-            
+            this.buildingWindow.Hide();
 
-            Debug.Log(true);    
+            var strip = UIView.Find<UITabstrip>("MainToolstrip");
+            GameObject asGameObject = UITemplateManager.GetAsGameObject("MainToolbarButtonTemplate");
+            GameObject asGameObject2 = UITemplateManager.GetAsGameObject("ScrollablePanelTemplate");
+            var uiButton = strip.AddTab("mapperMod", asGameObject, asGameObject2, new Type[] {});
+            uiButton.eventClick += uiButton_eventClick;
+
         }
 
-        public override void OnLevelUnloading()
+        private void uiButton_eventClick(UIComponent component, UIMouseEventParameter eventParam)
         {
-            if (_mode != LoadMode.LoadGame && _mode != LoadMode.NewGame)
-                return;
-
-            if (buildingWindow != null)
+            if (!this.buildingWindow.isVisible)
             {
-                if (this.buildingWindow.parent != null)
-                {
-                    this.buildingWindow.parent.eventVisibilityChanged -= buildingInfo_eventVisibilityChanged;
-                }
-            }
-
-            if (buildingWindowGameObject != null)
-            {
-                GameObject.Destroy(buildingWindowGameObject);
-            }
-        }
-
-        void buildingInfo_eventVisibilityChanged(UIComponent component, bool value)
-        {
-            this.buildingWindow.isEnabled = value;
-            if (value)
-            {
+                this.buildingWindow.isVisible = true;
+                this.buildingWindow.BringToFront();
                 this.buildingWindow.Show();
             }
             else
             {
+                this.buildingWindow.isVisible = false;
                 this.buildingWindow.Hide();
+            }            
+        }
+
+        public override void OnLevelUnloading()
+        {
+            if (_mode != LoadMode.NewMap && _mode != LoadMode.LoadMap)
+                return;
+
+
+            if (buildingWindowGameObject != null)
+            {
+                GameObject.Destroy(buildingWindowGameObject);
             }
         }
 

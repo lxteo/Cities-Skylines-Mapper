@@ -14,26 +14,26 @@ namespace Mapper
         private FitCurves fc;
 
         public Dictionary<uint,Vector2> nodes = new Dictionary<uint,Vector2>();
-        private List<Way> ways = new List<Way>();
+        private LinkedList<Way> ways = new LinkedList<Way>();
         public List<ProcessedWay> processedWays = new List<ProcessedWay>();
 
         double tolerance = 10;
         double curveError = 5;
 
-        public OSMInterface(string path)
+        public OSMInterface(string path, double scale, double tolerance, double curveTolerance,double tiles)
         {
-            mapping = new RoadMapping();
+            this.tolerance = tolerance;
+            this.curveError = curveTolerance;
+
+            mapping = new RoadMapping(tiles);
             fc = new FitCurves();
 
             var serializer = new XmlSerializer(typeof(Mapper.osm));
-            StreamReader reader = new StreamReader("map");
+            StreamReader reader = new StreamReader(path);
             var osm = (Mapper.osm)serializer.Deserialize(reader);
             reader.Close();
-            //foreach (var node in osm.node)
-            //{
-            //    mapping.InitBoundingBox(node);
-            //}
-            mapping.InitBoundingBox(osm.bounds);
+
+            mapping.InitBoundingBox(osm.bounds,scale);
 
             foreach (var node in osm.node)
             {
@@ -47,7 +47,7 @@ namespace Mapper
                 }                
             }
 
-            foreach (var way in osm.way)
+            foreach (var way in osm.way.OrderBy(c=> c.changeset))
             {
                 RoadTypes rt = RoadTypes.None;
                 List<uint> points = null;
@@ -71,7 +71,7 @@ namespace Mapper
                         {
                             if (currentList.Count() > 1 || currentList.Contains(pp))
                             {
-                                ways.Add(new Way(currentList, rt));
+                                ways.AddLast(new Way(currentList, rt));
                                 currentList = new List<uint>();
                             }
                         }
@@ -79,7 +79,7 @@ namespace Mapper
                     }
                     if (currentList.Count() > 1)
                     {
-                        ways.Add(new Way(currentList, rt));
+                        ways.AddLast(new Way(currentList, rt));
                     }                    
                 }
             }
@@ -150,6 +150,7 @@ namespace Mapper
         
         private void SplitWay(Way way, List<int> splits)
         {
+            var index = ways.Find(way);
             for (var i = 0; i < splits.Count(); i +=1)
             {
                 var nextIndex = way.nodes.Count() - 1;
@@ -158,7 +159,7 @@ namespace Mapper
                     nextIndex = splits[i + 1];
                 }
                 var newWay = new Way(way.nodes.GetRange(splits[i], 1 + nextIndex - splits[i]), way.rt);
-                ways.Add(newWay);
+                ways.AddAfter(index, newWay);
             }
             way.nodes.RemoveRange(splits[0] + 1, way.nodes.Count() - splits[0] - 1);
         }
@@ -171,7 +172,7 @@ namespace Mapper
                 return null;
             }
             var newWay = new Way(inter.nodes.GetRange(removeIndex, inter.nodes.Count() - removeIndex), inter.rt);
-            ways.Add(newWay);
+            ways.AddAfter(ways.Find(inter), newWay);
             inter.nodes.RemoveRange(removeIndex + 1, inter.nodes.Count() - removeIndex - 1);
             return newWay;
         }

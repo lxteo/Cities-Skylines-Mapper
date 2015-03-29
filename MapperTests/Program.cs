@@ -11,7 +11,7 @@ namespace MapperTests
     {
         static void Main(string[] args)
         {            
-            var test = new Mapper.OSMInterface("map");            
+            //var test = new Mapper.OSMInterface("map");            
             
         }
     }

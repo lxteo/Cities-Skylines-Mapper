@@ -5,8 +5,6 @@ using System.Text;
 using ColossalFramework;
 using ColossalFramework.Math;
 using ColossalFramework.UI;
-using System;
-using System.Collections.Generic;
 using System.Reflection;
 using System.Timers;
 using UnityEngine;
@@ -15,99 +13,185 @@ namespace Mapper
 {
     public class MapperWindow : UIPanel
     {
-        UIButton descriptionButton;
-        UILabel descriptionLabel;
-        RoadMaker osm;
-        bool createRoads = false;
+        
+        UIButton okButton;
+        UILabel title;
+        UICustomCheckbox3 pedestriansCheck;
+        UILabel pedestrianLabel;
+
+        UITextField scaleTextBox;
+        UILabel scaleTextBoxLabel;
+
+        UITextField pathTextBox;
+        UILabel pathTextBoxLabel;
+
+        UITextField tolerance;
+        UILabel toleranceLabel;
+
+        UITextField curveTolerance;
+        UILabel curveToleranceLabel;
+
+        UITextField tiles;
+        UILabel tilesLabel;
+
+        public ICities.LoadMode mode;
+        RoadMaker roadMaker;
+        bool createRoads;
         int currentIndex = 0;
 
         public override void Awake()
-        {           
-            descriptionLabel = AddUIComponent<UILabel>();
-            descriptionButton = AddUIComponent<UIButton>();
+        {
+            title = AddUIComponent<UILabel>();
+            pedestriansCheck = AddUIComponent<UICustomCheckbox3>();
+            pedestrianLabel = AddUIComponent<UILabel>();
 
+            scaleTextBox = AddUIComponent<UITextField>();
+            scaleTextBoxLabel = AddUIComponent<UILabel>();
+
+            pathTextBox = AddUIComponent<UITextField>();
+            pathTextBoxLabel = AddUIComponent<UILabel>();
+
+            tolerance = AddUIComponent<UITextField>();
+            toleranceLabel = AddUIComponent<UILabel>();
+
+            curveTolerance = AddUIComponent<UITextField>();
+            curveToleranceLabel = AddUIComponent<UILabel>();
+
+            tiles = AddUIComponent<UITextField>();
+            tilesLabel = AddUIComponent<UILabel>();
+
+            okButton = AddUIComponent<UIButton>();
+
+            width = 400;
             base.Awake();
 
         }
-
         public override void Start()
         {
             base.Start();
 
+            relativePosition = new Vector3(396, 58);
             backgroundSprite = "MenuPanel2";
-            opacity = 0.8f;
-            isVisible = true;
-            canFocus = true;
             isInteractive = true;
+            //this.CenterToParent();
             SetupControls();
         }
 
         public void SetupControls()
         {
-            base.Start();
+            title.text = "Open Street Map Import";
+            title.relativePosition = new Vector3(15, 15);
+            title.textScale = 0.9f;
+            title.size = new Vector2(200, 30);
+            var vertPadding = 30;
 
-            SetLabel(descriptionLabel, "Import");
-            descriptionLabel.textScale = 0.65f;
-            descriptionLabel.wordWrap = true;
-            //descriptionLabel.size = new Vector2(barWidth - 20, 140);
-            descriptionLabel.autoSize = false;
-            descriptionLabel.width = 120;
-            descriptionLabel.wordWrap = true;
-            descriptionLabel.autoHeight = true;
-            descriptionLabel.anchor = (UIAnchorStyle.Top | UIAnchorStyle.Left | UIAnchorStyle.Right);
-            descriptionButton.normalBgSprite = "IconDownArrow";
-            descriptionButton.hoveredBgSprite = "IconDownArrowHovered";
-            descriptionButton.focusedBgSprite = "IconDownArrowFocused";
-            descriptionButton.pressedBgSprite = "IconDownArrow";
-            descriptionButton.size = new Vector3(80, 20);
-            descriptionButton.color = Color.white;
-            descriptionButton.colorizeSprites = true;
+            var x = 15;
+            var y = 50;
 
-            descriptionButton.eventClick += descriptionButton_eventClick;
+            pedestriansCheck.IsChecked = true;
+            pedestriansCheck.relativePosition = new Vector3(x + 100, y);
+            pedestriansCheck.size = new Vector2(13, 13);
+            pedestriansCheck.Show();
+            pedestriansCheck.color = new Color32(185, 221, 254, 255);
+            pedestriansCheck.enabled = true;
+            pedestriansCheck.eventClick += (component, param) =>
+            {
+                pedestriansCheck.IsChecked = !pedestriansCheck.IsChecked;
+            };
+            SetLabel(pedestrianLabel, "Pedestrian Paths", x, y);
+            y += vertPadding;            
 
+            SetLabel(scaleTextBoxLabel, "Scale", x, y);
+            SetTextBox(scaleTextBox, "1", x + 120, y);
+            y += vertPadding;
+
+            SetLabel(pathTextBoxLabel, "Path", x, y);
+            SetTextBox(pathTextBox, Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + "\\map", x + 120, y);
+            y += vertPadding;
+
+            SetLabel(toleranceLabel, "Tolerance", x, y);
+            SetTextBox(tolerance, "10", x + 120, y);
+            y += vertPadding;
+
+            SetLabel(curveToleranceLabel, "Curve Tolerance", x, y);
+            SetTextBox(curveTolerance, "6", x + 120, y);
+            y += vertPadding;
+
+            SetLabel(tilesLabel, "Tiles to Boundary", x, y);
+            SetTextBox(tiles, "4", x + 120, y);
+            y += vertPadding;
+
+            okButton.text = "Import";
+            okButton.normalBgSprite = "ButtonMenu";
+            okButton.hoveredBgSprite = "ButtonMenuHovered";
+            okButton.focusedBgSprite = "ButtonMenuFocused";
+            okButton.pressedBgSprite = "ButtonMenuPressed";
+            okButton.size = new Vector2(100, 30);
+            okButton.relativePosition = new Vector3( (width - okButton.size.x) / 2, y);
+            okButton.eventClick += okButton_eventClick;
+            okButton.textScale = 0.8f;
+
+            height = y + vertPadding + 6;
         }
 
-        private void descriptionButton_eventClick(UIComponent component, UIMouseEventParameter eventParam)
+        private void SetTextBox(UITextField scaleTextBox, string p, int x, int y)
         {
-            if (osm == null)
-            {
-                osm = new RoadMaker("map");
-            }
-            createRoads = !createRoads;            
-        }
-        
-        private void SetLabel(UILabel title, string p)
-        {
-            title.text = p;
-            title.textScale = 0.7f;
-            title.size = new Vector2(120, 30);
+            scaleTextBox.relativePosition = new Vector3(x, y);
+            scaleTextBox.text = p;
+            scaleTextBox.textScale = 0.8f;
+            scaleTextBox.normalBgSprite = "TextFieldPanel";
+            scaleTextBox.hoveredBgSprite = "TextFieldPanelHovered";
+            scaleTextBox.focusedBgSprite = "TextFieldUnderline";
+            scaleTextBox.size = new Vector3(width - 120 - 30, 20);
+            scaleTextBox.isInteractive = true;
+            scaleTextBox.enabled = true;
+            scaleTextBox.readOnly = false;
+            scaleTextBox.builtinKeyNavigation = true;            
         }
 
-        private void SetPos(UILabel title, UIProgressBar bar, float x, float y, bool visible)
+        private void SetLabel(UILabel pedestrianLabel, string p, int x, int y)
         {
-            bar.relativePosition = new Vector3(x + 120, y - 3);
-            title.relativePosition = new Vector3(x, y);
-            if (visible)
-            {
-                bar.Show();
-                title.Show();
-            }
-            else
-            {
-                bar.Hide();
-                title.Hide();
-            }
+            pedestrianLabel.relativePosition = new Vector3(x, y);
+            pedestrianLabel.text = p;
+            pedestrianLabel.textScale = 0.8f;
+            pedestrianLabel.size = new Vector3(120,20);
+        }
+
+        private void okButton_eventClick(UIComponent component, UIMouseEventParameter eventParam)
+        {
+            roadMaker = new RoadMaker(pathTextBox.text.Trim(), pedestriansCheck.IsChecked, double.Parse(scaleTextBox.text.Trim()), double.Parse(tolerance.text.Trim()), double.Parse(curveTolerance.text.Trim()), double.Parse(tiles.text.Trim()));
+            createRoads = !createRoads;   
         }
 
         public override void Update()
         {
-            if (createRoads && currentIndex < osm.osm.processedWays.Count())
+            if (createRoads && currentIndex < roadMaker.osm.processedWays.Count())
             {
-                SimulationManager.instance.AddAction(osm.MakeRoad(currentIndex));
+                SimulationManager.instance.AddAction(roadMaker.MakeRoad(currentIndex));
+                currentIndex += 1;
+                SimulationManager.instance.AddAction(roadMaker.MakeRoad(currentIndex));
                 currentIndex += 1;
             }
-
+            this.pedestriansCheck.Update();            
             base.Update();
         }
     }
+
+    public class UICustomCheckbox3 : UISprite
+    {
+        public bool IsChecked { get; set; }
+
+        public override void Start()
+        {
+            base.Start();
+            IsChecked = true;
+            spriteName = "AchievementCheckedTrue";
+        }
+
+        public override void Update()
+        {
+            base.Update();
+            spriteName = IsChecked ? "AchievementCheckedTrue" : "AchievementCheckedFalse";
+        }
+    }    
 }

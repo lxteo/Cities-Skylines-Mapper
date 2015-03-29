@@ -18,10 +18,12 @@ namespace Mapper
 
         private Dictionary<RoadTypes, NetInfo> netInfos = new Dictionary<RoadTypes, NetInfo>();
         private Dictionary<uint, ushort> nodeMap = new Dictionary<uint, ushort>();
+        bool Pedestrians;
 
-        public RoadMaker(string p)
+        public RoadMaker(string path, bool pedestrians, double scale, double tolerance, double curveTolerance,double tiles)
         {
-            this.osm = new OSMInterface(p);
+            this.Pedestrians = pedestrians;
+            this.osm = new OSMInterface(path, scale, tolerance, curveTolerance, tiles);
             this.rand = new Randomizer(0u);
 
             var roadTypes = Enum.GetNames(typeof(RoadTypes));
@@ -41,6 +43,10 @@ namespace Mapper
             var nm = Singleton<NetManager>.instance;
             var way = osm.processedWays[p];
             NetInfo ni = null;
+            
+            if (!Pedestrians && (way.roadTypes == RoadTypes.PedestrianGravel || way.roadTypes == RoadTypes.PedestrianPavement)){
+                yield return null;
+            }
 
             if (netInfos.ContainsKey(way.roadTypes))
             {
