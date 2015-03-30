@@ -13,12 +13,16 @@ namespace Mapper
     public class MapperLoading : LoadingExtensionBase
     {
         GameObject buildingWindowGameObject;
+        GameObject buttonObject;
+        GameObject buttonObject2;
+        UIButton menuButton;
+
         MapperWindow buildingWindow;
         private LoadMode _mode;
 
         public override void OnLevelLoaded(LoadMode mode)
         {
-            if (mode != LoadMode.LoadGame && mode != LoadMode.NewGame)
+            if (mode != LoadMode.LoadGame && mode != LoadMode.NewGame && mode != LoadMode.NewMap && mode != LoadMode.LoadMap)
                 return;
             _mode = mode;
 
@@ -30,11 +34,21 @@ namespace Mapper
             this.buildingWindow.position = new Vector3(300, 122);
             this.buildingWindow.Hide();
 
-            var strip = ToolsModifierControl.mainToolbar.component as UITabstrip;
-            GameObject asGameObject = UITemplateManager.GetAsGameObject("MainToolbarButtonTemplate");
-            GameObject asGameObject2 = UITemplateManager.GetAsGameObject("ScrollablePanelTemplate");
-            var uiButton = strip.AddTab("mapperMod", asGameObject, asGameObject2, new Type[] {});
-            uiButton.eventClick += uiButton_eventClick;
+
+            UITabstrip strip = null;
+            if (mode == LoadMode.NewGame || mode == LoadMode.LoadGame)
+            {
+                strip =  ToolsModifierControl.mainToolbar.component as UITabstrip;
+            }
+            else
+            {
+                strip = UIView.Find<UITabstrip>("MainToolstrip");
+            }
+
+            buttonObject = UITemplateManager.GetAsGameObject("MainToolbarButtonTemplate");
+            buttonObject2 = UITemplateManager.GetAsGameObject("ScrollablePanelTemplate");
+            menuButton = strip.AddTab("mapperMod", buttonObject, buttonObject2, new Type[] { }) as UIButton;
+            menuButton.eventClick += uiButton_eventClick;
 
         }
 
@@ -55,13 +69,20 @@ namespace Mapper
 
         public override void OnLevelUnloading()
         {
-            if (_mode != LoadMode.LoadGame && _mode != LoadMode.NewGame)
+            if (_mode != LoadMode.LoadGame && _mode != LoadMode.NewGame && _mode != LoadMode.NewMap && _mode != LoadMode.LoadMap)
                 return;
 
 
             if (buildingWindowGameObject != null)
             {
                 GameObject.Destroy(buildingWindowGameObject);
+            }
+
+            if (buttonObject != null)
+            {
+                GameObject.Destroy(buttonObject);
+                GameObject.Destroy(buttonObject2);
+                UIComponent.Destroy(menuButton);
             }
         }
 
