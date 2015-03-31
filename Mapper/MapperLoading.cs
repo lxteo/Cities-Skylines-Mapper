@@ -1,5 +1,6 @@
 ﻿using ColossalFramework;
 using ColossalFramework.Math;
+using ColossalFramework.Plugins;
 using ColossalFramework.UI;
 using ICities;
 using System;
@@ -17,7 +18,7 @@ namespace Mapper
         GameObject buttonObject2;
         UIButton menuButton;
 
-        MapperWindow buildingWindow;
+        MapperWindow7 buildingWindow;
         private LoadMode _mode;
 
         public override void OnLevelLoaded(LoadMode mode)
@@ -29,7 +30,7 @@ namespace Mapper
             buildingWindowGameObject = new GameObject("buildingWindowObject");
 
             var view = UIView.GetAView();
-            this.buildingWindow = buildingWindowGameObject.AddComponent<MapperWindow>();
+            this.buildingWindow = buildingWindowGameObject.AddComponent<MapperWindow7>();
             this.buildingWindow.transform.parent = view.transform;
             this.buildingWindow.position = new Vector3(300, 122);
             this.buildingWindow.Hide();
@@ -49,11 +50,11 @@ namespace Mapper
             buttonObject2 = UITemplateManager.GetAsGameObject("ScrollablePanelTemplate");
             menuButton = strip.AddTab("mapperMod", buttonObject, buttonObject2, new Type[] { }) as UIButton;
             menuButton.eventClick += uiButton_eventClick;
-
         }
 
         private void uiButton_eventClick(UIComponent component, UIMouseEventParameter eventParam)
         {
+
             if (!this.buildingWindow.isVisible)
             {
                 this.buildingWindow.isVisible = true;

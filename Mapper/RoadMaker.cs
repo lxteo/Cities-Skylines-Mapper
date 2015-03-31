@@ -11,19 +11,16 @@ using UnityEngine;
 
 namespace Mapper
 {
-    public class RoadMaker
+    public class RoadMaker2
     {
         public OSMInterface osm;
         private Randomizer rand;
 
         private Dictionary<RoadTypes, NetInfo> netInfos = new Dictionary<RoadTypes, NetInfo>();
         private Dictionary<uint, ushort> nodeMap = new Dictionary<uint, ushort>();
-        bool Pedestrians;
-
-        public RoadMaker(string path, bool pedestrians, double scale, double tolerance, double curveTolerance,double tiles)
+        public RoadMaker2(OSMInterface osm)
         {
-            this.Pedestrians = pedestrians;
-            this.osm = new OSMInterface(path, scale, tolerance, curveTolerance, tiles);
+            this.osm = osm;
             this.rand = new Randomizer(0u);
 
             var roadTypes = Enum.GetNames(typeof(RoadTypes));
@@ -38,7 +35,7 @@ namespace Mapper
         }
 
 
-        public IEnumerator MakeRoad(int p)
+        public IEnumerator MakeRoad(int p,bool pedestrians, bool roads, bool highways)
         {
             var nm = Singleton<NetManager>.instance;
 
@@ -46,11 +43,26 @@ namespace Mapper
             {
                 yield return null;
             }
-            var way = osm.processedWays[p];
+            var way = osm.ways.ElementAt(p);
             NetInfo ni = null;
-            
-            if (!Pedestrians && (way.roadTypes == RoadTypes.PedestrianGravel || way.roadTypes == RoadTypes.PedestrianPavement)){
-                yield return null;
+
+            if (way.roadTypes == RoadTypes.None)
+            {
+                yield break;
+            }
+            if (!pedestrians && ((int)way.roadTypes <= (int)RoadTypes.PedestrianElevated))
+            {
+                yield break;
+            }
+
+            if (!roads && (int)way.roadTypes > (int)RoadTypes.PedestrianElevated && (int)way.roadTypes < (int)RoadTypes.TrainTrack)
+            {
+                yield break;
+            }
+
+            if (!highways && (int)way.roadTypes >= (int)RoadTypes.TrainTrack)
+            {
+                yield break;
             }
 
             if (netInfos.ContainsKey(way.roadTypes))
@@ -62,7 +74,19 @@ namespace Mapper
                 Debug.Log("Failed to find net info: " + way.roadTypes.ToString());
                 yield return null;
             }
+            float elevation = way.layer;
+            if (elevation < 0)
+            {
+                yield return null;
+            }
+            else if (elevation > 0)
+            {
+                elevation *= 11f;
 
+                var errors = default(ToolBase.ToolErrors);
+                ni = ni.m_netAI.GetInfo(elevation, 5f, false, false, false, false,ref errors);
+
+            }
             if (!osm.nodes.ContainsKey(way.startNode) || !osm.nodes.ContainsKey(way.endNode))
             {
                 yield return null;
@@ -72,10 +96,12 @@ namespace Mapper
             if (nodeMap.ContainsKey(way.startNode))
             {
                 startNode = nodeMap[way.startNode];
+                AdjustElevation(startNode, elevation);
             }
             else
             {
-                CreateNode(out startNode, ref rand, ni, osm.nodes[way.startNode]);
+                CreateNode(out startNode, ref rand, ni, osm.nodes[way.startNode],elevation);
+                AdjustElevation(startNode, elevation);
                 nodeMap.Add(way.startNode, startNode);
             }
 
@@ -83,10 +109,12 @@ namespace Mapper
             if (nodeMap.ContainsKey(way.endNode))
             {
                 endNode = nodeMap[way.endNode];
+                AdjustElevation(endNode, elevation);
             }
             else
             {
-                CreateNode(out endNode, ref rand, ni, osm.nodes[way.endNode]);
+                CreateNode(out endNode, ref rand, ni, osm.nodes[way.endNode],elevation);
+                AdjustElevation(endNode, elevation);
                 nodeMap.Add(way.endNode, endNode);
             }
 
@@ -101,7 +129,8 @@ namespace Mapper
                 }
                 else
                 {
-                    CreateNode(out currentEndNode, ref rand, ni, segment.endPoint);
+                    CreateNode(out currentEndNode, ref rand, ni, segment.endPoint, elevation);
+                    AdjustElevation(currentEndNode, elevation);
                 }
 
                 ushort segmentId;
@@ -138,15 +167,56 @@ namespace Mapper
             yield return null;
         }
 
-        private void CreateNode(out ushort startNode, ref Randomizer rand, NetInfo netInfo, Vector2 oldPos)
+        private void AdjustElevation(ushort startNode, float elevation)
+        {
+            var nm = Singleton<NetManager>.instance;
+            var node = nm.m_nodes.m_buffer[startNode];
+            var ele = (byte)Mathf.Clamp(Mathf.RoundToInt(Math.Max(node.m_elevation, elevation)), 0, 255);
+            var terrain = Singleton<TerrainManager>.instance.SampleRawHeightSmoothWithWater(node.m_position, false, 0f);
+            node.m_elevation = ele;
+            node.m_position = new Vector3(node.m_position.x, ele + terrain, node.m_position.z);
+            if (elevation < 11f)
+            {
+                node.m_flags |= NetNode.Flags.OnGround;
+            }
+            else
+            {
+                node.m_flags &= ~NetNode.Flags.OnGround;
+                UpdateSegment(node.m_segment0,elevation);
+                UpdateSegment(node.m_segment1, elevation);
+                UpdateSegment(node.m_segment2, elevation);
+                UpdateSegment(node.m_segment3, elevation);
+                UpdateSegment(node.m_segment4, elevation);
+                UpdateSegment(node.m_segment5, elevation);
+                UpdateSegment(node.m_segment6, elevation);
+                UpdateSegment(node.m_segment7, elevation);
+                
+            }
+            nm.m_nodes.m_buffer[startNode] = node;
+            //Singleton<NetManager>.instance.UpdateNode(startNode);
+        }
+
+        private void UpdateSegment(ushort segmentId, float elevation)
+        {
+            if (segmentId == 0)
+            {
+                return;
+            }
+            var nm = Singleton<NetManager>.instance;
+            if (elevation > 4)
+            {
+                var errors = default(ToolBase.ToolErrors);
+                nm.m_segments.m_buffer[segmentId].Info = nm.m_segments.m_buffer[segmentId].Info.m_netAI.GetInfo(elevation,5,false,false,false,false,ref errors);
+            }
+        }
+
+        private void CreateNode(out ushort startNode, ref Randomizer rand, NetInfo netInfo, Vector2 oldPos, float elevation)
         {
             var pos = new Vector3(oldPos.x, 0, oldPos.y);
             pos.y = Singleton<TerrainManager>.instance.SampleRawHeightSmoothWithWater(pos,false,0f);
             var nm = Singleton<NetManager>.instance;
             nm.CreateNode(out startNode, ref rand, netInfo, pos, Singleton<SimulationManager>.instance.m_currentBuildIndex);
             Singleton<SimulationManager>.instance.m_currentBuildIndex += 1u;
-            var node = nm.m_nodes.m_buffer[startNode];
-            node.m_flags |= NetNode.Flags.OnGround;
         }
 
 
