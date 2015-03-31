@@ -51,6 +51,8 @@ namespace Mapper
 
         UIButton okButton;
 
+        UIButton exportButton;
+
         public ICities.LoadMode mode;
         RoadMaker2 roadMaker;
         bool createRoads;
@@ -102,6 +104,7 @@ namespace Mapper
 
             okButton = AddUIComponent<UIButton>();
 
+            exportButton = AddUIComponent<UIButton>();
             base.Awake();
 
         }
@@ -181,8 +184,17 @@ namespace Mapper
             SetButton(okButton, "Make Roads", y);
             okButton.eventClick += okButton_eventClick;
             okButton.Disable();
+            y += vertPadding;
 
+            SetButton(exportButton, "Export City to .osm", y);
+            exportButton.eventClick +=exportButton_eventClick;
             height = y + vertPadding + 6;
+        }
+
+        private void exportButton_eventClick(UIComponent component, UIMouseEventParameter eventParam)
+        {
+            var export = new OSMExport();
+            export.Export();
         }
 
         private void highwaysCheck_eventClick(UIComponent component, UIMouseEventParameter eventParam)

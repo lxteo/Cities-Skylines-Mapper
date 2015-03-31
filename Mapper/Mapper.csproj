@@ -58,6 +58,7 @@
     <Compile Include="MapperLoading.cs" />
     <Compile Include="MapperMod.cs" />
     <Compile Include="osm.cs" />
+    <Compile Include="OSMExport.cs" />
     <Compile Include="RoadData.cs" />
     <Compile Include="RoadMaker.cs" />
     <Compile Include="OSMInterface.cs" />
