@@ -13,6 +13,7 @@ namespace Mapper
     {
 
         private string noteField;
+        private bool uploadField;
 
         private osmMeta metaField;
 
@@ -27,6 +28,20 @@ namespace Mapper
         private decimal versionField;
 
         private string generatorField;
+
+        /// <upload/>
+        public bool upload
+        {
+            get
+            {
+                return this.uploadField;
+            }
+            set
+            {
+                this.uploadField = value;
+            }
+        }
+
 
         /// <remarks/>
         public string note

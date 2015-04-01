@@ -12,14 +12,14 @@ namespace Mapper
         {
             get
             {
-                return "Magic Mapper Mod";
+                return "Cimtographer";
             }
         }
         public string Description
         {
             get
             {
-                return "Convert from and to street map format.";
+                return "Convert from and to OpenStreetMap format.";
             }
         }
     }

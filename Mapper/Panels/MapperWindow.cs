@@ -9,6 +9,9 @@ using System.Reflection;
 using System.Timers;
 using UnityEngine;
 using System.IO;
+using System.Net;
+using ColossalFramework.Importers;
+using System.Collections;
 
 namespace Mapper
 {
@@ -23,6 +26,7 @@ namespace Mapper
         UITextField coordinates;
         UILabel coordinatesLabel;
         UIButton loadAPIButton;
+        UIButton loadTerrainParty;
 
         UILabel informationLabel;
 
@@ -60,6 +64,7 @@ namespace Mapper
          bool peds = true;
          bool roads = true;
          bool highways = true;
+         private byte[] m_LastHeightmap16;
 
         public override void Awake()
         {
@@ -73,6 +78,7 @@ namespace Mapper
             coordinates = AddUIComponent<UITextField>();
             coordinatesLabel = AddUIComponent<UILabel>();
             loadAPIButton = AddUIComponent<UIButton>();
+            loadTerrainParty = AddUIComponent<UIButton>();
 
             pathTextBox = AddUIComponent<UITextField>();
             pathTextBoxLabel = AddUIComponent<UILabel>();
@@ -160,7 +166,7 @@ namespace Mapper
             y += vertPadding;
 
             SetLabel(tilesLabel, "Tiles to Boundary", x, y);
-            SetTextBox(tiles, "3.5", x + 120, y);
+            SetTextBox(tiles, "2.5", x + 120, y);
             y += vertPadding + 12;
 
             SetLabel(pathTextBoxLabel, "Path", x, y);
@@ -173,10 +179,16 @@ namespace Mapper
             SetLabel(coordinatesLabel, "Bounding Box", x, y);
             SetTextBox(coordinates, "35.949310,34.522050,35.753054,34.360353", x + 120, y);
             y += vertPadding - 5;
-            SetButton(loadAPIButton, "Load From http://overpass-api.de/", y);
-            loadAPIButton.eventClick += loadAPIButton_eventClick;
+
+            SetButton(loadTerrainParty, "Load From terrain.party", y);
+            loadTerrainParty.tooltip = "Load terrain height data from terrain.party.";
+            loadTerrainParty.eventClick += loadTerrainParty_eventClick;
             y += vertPadding + 5;
 
+            SetButton(loadAPIButton, "Load From overpass-api.de/", y);
+            loadAPIButton.tooltip = "Load road map data from OpenStreetMap";
+            loadAPIButton.eventClick += loadAPIButton_eventClick;
+            y += vertPadding + 5;
 
             SetLabel(errorLabel, "No OSM data loaded.", x, y);
             y += vertPadding + 12;
@@ -191,10 +203,85 @@ namespace Mapper
             height = y + vertPadding + 6;
         }
 
+        private void loadTerrainParty_eventClick(UIComponent component, UIMouseEventParameter eventParam)
+        {
+            try
+            {
+                decimal startLat = 0M;
+                decimal startLon = 0M;
+                decimal endLat = 0M;
+                decimal endLon = 0M;
+                var sc = double.Parse(scaleTextBox.text);
+                if (!GetCoordinates(4.5,sc,ref startLon, ref startLat, ref endLon, ref endLat))
+                {
+                    return;
+                }
+                var client = new WebClient();
+                client.Headers.Add("user-agent", "Cities Skylines Mapping Mod v1");
+                client.DownloadDataCompleted += client_DownloadDataCompleted;
+                client.DownloadDataAsync(new System.Uri("http://terrain.party/api/export?box=" + string.Format("{0},{1},{2},{3}", endLon, endLat, startLon, startLat) + "&heightmap=merged"));
+                errorLabel.text = "Downloading map from Terrain.Party...";
+            }
+            catch (Exception ex)
+            {
+                errorLabel.text = ex.ToString();
+            }
+        }
+
+        private IEnumerator LoadHeightMap16(byte[] heightmap)
+        {
+            Singleton<TerrainManager>.instance.SetHeightMap16(heightmap);
+            errorLabel.text = "Terrain Loaded";
+            yield return null;
+        }
+
+        private void client_DownloadDataCompleted(object sender, DownloadDataCompletedEventArgs e)
+        {
+            try
+            {                            
+                var image = new Image(e.Result);
+                image.Convert(Image.kFormatAlpha16);
+                if (image.width != 1081 || image.height != 1081)
+                {
+                    if (!image.Resize(1081, 1081))
+                    {
+                        errorLabel.text = string.Concat(new object[]
+						    {
+							    "Resize not supported: ",
+							    image.format,
+							    "-",
+							    image.width,
+							    "x",
+							    image.height,
+							    " Expected: ",
+							    1081,
+							    "x",
+							    1081
+						    });
+                        return;
+                    }
+                }
+                m_LastHeightmap16 = image.GetPixels();                
+                SimulationManager.instance.AddAction(LoadHeightMap16(m_LastHeightmap16));
+            }
+            catch (Exception ex)
+            {
+                errorLabel.text = ex.ToString();
+            }
+        }
+
         private void exportButton_eventClick(UIComponent component, UIMouseEventParameter eventParam)
         {
-            var export = new OSMExport();
-            export.Export();
+            try
+            {
+                var export = new OSMExport();
+                export.Export();
+                errorLabel.text = "City exported.";
+            }
+            catch (Exception ex)
+            {
+                errorLabel.text = ex.ToString();
+            }
         }
 
         private void highwaysCheck_eventClick(UIComponent component, UIMouseEventParameter eventParam)
@@ -219,31 +306,17 @@ namespace Mapper
         {
             try
             {
-                var text = coordinates.text.Trim();
-                var split = text.Split(new string[]{","},StringSplitOptions.RemoveEmptyEntries);
-                decimal startLat;
-                decimal startLon;
-                decimal endLat;
-                decimal endLon;
-                if (split.Count() != 4 || !decimal.TryParse(split[0], out startLon) || !decimal.TryParse(split[1], out startLat) || !decimal.TryParse(split[2], out endLon) || !decimal.TryParse(split[3], out endLat))
+                decimal startLat = 0M;
+                decimal startLon = 0M;
+                decimal endLat = 0M;
+                decimal endLon = 0M;
+                var scale = double.Parse(scaleTextBox.text.Trim());
+                var tt = double.Parse(tiles.text.Trim());
+
+                if (!GetCoordinates(tt,scale,ref startLon, ref startLat, ref endLon, ref endLat))
                 {
-                    errorLabel.text = "Coordinate format wrong!";
                     return;
                 }
-                if (startLat > endLat)
-                {
-                    var temp = startLat;
-                    startLat = endLat;
-                    endLat = temp;
-                }
-
-                if (startLon > endLon)
-                {
-                    var temp = startLon;
-                    startLon = endLon;
-                    endLon = temp;
-                }
-
 
                 var ob = new osmBounds();
                 ob.minlon = startLon;
@@ -251,7 +324,8 @@ namespace Mapper
                 ob.maxlon = endLon;
                 ob.maxlat = endLat;
 
-                var osm = new OSMInterface(ob, double.Parse(scaleTextBox.text.Trim()), double.Parse(tolerance.text.Trim()), double.Parse(curveTolerance.text.Trim()), double.Parse(tiles.text.Trim()));
+                var osm = new OSMInterface(ob, scale, double.Parse(tolerance.text.Trim()), double.Parse(curveTolerance.text.Trim()), tt);
+                currentIndex = 0;
                 roadMaker = new RoadMaker2(osm);
                 errorLabel.text = "Data Loaded.";
                 okButton.Enable();
@@ -262,6 +336,46 @@ namespace Mapper
             {
                 errorLabel.text = ex.ToString();
             }
+        }
+
+        private bool GetCoordinates(double tt,double scale, ref decimal startLon, ref decimal startLat, ref decimal endLon, ref decimal endLat)
+        {
+            var text = coordinates.text.Trim();
+            var split = text.Split(new string[] { "," }, StringSplitOptions.RemoveEmptyEntries);
+            decimal midLon = 0M;
+            decimal midLat = 0M;
+
+            if (split.Count() == 2)
+            {
+                if (!decimal.TryParse(split[0], out midLon) || !decimal.TryParse(split[1], out midLat))
+                {
+                    errorLabel.text = "Coordinates must be numbers.";
+                    return false;
+                }
+            }
+            else if (split.Count() == 4)
+            {
+                if (!decimal.TryParse(split[0], out startLon) || !decimal.TryParse(split[1], out startLat) || !decimal.TryParse(split[2], out endLon) || !decimal.TryParse(split[3], out endLat))
+                {
+                    errorLabel.text = "Coordinates must be numbers.";
+                    return false;
+                }
+                midLon = (endLon + startLon) / 2M;
+                midLat = (endLat + startLat) / 2M;
+            }
+            else
+            {
+                errorLabel.text = "Coordinate format wrong! Input either one or two sets of coordinates seperated by commas.";
+                return false;
+            }
+
+            var lonFactor = (decimal)Math.Abs((scale * (double)(endLon - midLon) * tt / 4.5));
+            var latFactor = (decimal)Math.Abs((scale * (double)(endLat - midLat) * tt / 4.5));
+            startLon = midLon - lonFactor;
+            endLon = midLon + lonFactor;
+            startLat = midLat - latFactor;
+            endLat = midLat + latFactor;
+            return true;
         }
 
         private void loadMapButton_eventClick(UIComponent component, UIMouseEventParameter eventParam)
@@ -279,6 +393,7 @@ namespace Mapper
             try
             {
                 var osm = new OSMInterface(pathTextBox.text.Trim(), double.Parse(scaleTextBox.text.Trim()), double.Parse(tolerance.text.Trim()), double.Parse(curveTolerance.text.Trim()), double.Parse(tiles.text.Trim()));
+                currentIndex = 0;
                 roadMaker = new RoadMaker2(osm);
                 errorLabel.text = "File Loaded.";
                 okButton.Enable();
@@ -315,6 +430,7 @@ namespace Mapper
             okButton.size = new Vector2(260, 24);
             okButton.relativePosition = new Vector3((int)(width - okButton.size.x) / 2,y);
             okButton.textScale = 0.8f;
+
         }
 
         private void SetCheckBox(UICustomCheckbox3 pedestriansCheck, int x, int y)
@@ -342,6 +458,8 @@ namespace Mapper
             scaleTextBox.color = Color.black;
             scaleTextBox.cursorBlinkTime = 0.45f;
             scaleTextBox.cursorWidth = 1;
+            scaleTextBox.selectionBackgroundColor = new Color(233,201,148,255);
+            scaleTextBox.selectionSprite = "EmptySprite";
             scaleTextBox.verticalAlignment = UIVerticalAlignment.Middle;
             scaleTextBox.padding = new RectOffset(5, 0, 5, 0);
             scaleTextBox.foregroundSpriteMode = UIForegroundSpriteMode.Fill;
@@ -352,7 +470,8 @@ namespace Mapper
             scaleTextBox.isInteractive = true;
             scaleTextBox.enabled = true;
             scaleTextBox.readOnly = false;
-            scaleTextBox.builtinKeyNavigation = true;            
+            scaleTextBox.builtinKeyNavigation = true;
+            
         }
 
         private void SetLabel(UILabel pedestrianLabel, string p, int x, int y)
@@ -367,7 +486,6 @@ namespace Mapper
         {
             if (roadMaker != null)
             {
-                currentIndex = 0;
                 createRoads = !createRoads;
             }
         }

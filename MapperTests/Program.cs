@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -14,9 +15,23 @@ namespace MapperTests
     {
         static void Main(string[] args)
         {
-
-            var test = new Mapper.OSMInterface("100.89844,4.2372423,101.25000,5.9879921", 1, 24, 6, 6);            
+            decimal startLat = 48.005940M;
+            decimal startLon = -90.8338M;
+            decimal endLat = 48.167637M;
+            decimal endLon = -90.596378M;
+            var client = new WebClient();
+            //client.DownloadDataCompleted +=client_DownloadDataCompleted;
+            var image =  new Bitmap(new MemoryStream(client.DownloadData(new System.Uri("http://terrain.party/api/export?box=" + string.Format("{0},{1},{2},{3}", endLon, endLat, startLon, startLat) + "&heightmap=merged"))));
+            image.Save("test.png");
+            var abv = 1;
+            abv += 1;
+            //var test = new Mapper.OSMInterface("100.89844,4.2372423,101.25000,5.9879921", 1, 24, 6, 6);            
             
+        }
+
+        private static void client_DownloadDataCompleted(object sender, DownloadDataCompletedEventArgs e)
+        {
+            var image =  new Bitmap(new MemoryStream(e.Result));
         }
     }
 }

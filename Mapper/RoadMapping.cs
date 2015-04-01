@@ -67,7 +67,6 @@ namespace Mapper
         private Dictionary<KeyValuePair<string, string>, RoadTypes> roadTypeMapping = new Dictionary<KeyValuePair<string, string>, RoadTypes>();
         private Dictionary<RoadTypes, KeyValuePair<string, string>> reverseMapping = new Dictionary<RoadTypes,KeyValuePair<string, string>>();
         private Dictionary<string, bool> pavedMapping = new Dictionary<string, bool>();
-
         
         //private Vector2 startLatLon = new Vector2(float.MaxValue, float.MaxValue);
         private Vector2 middleLatLon = new Vector2(float.MinValue, float.MinValue);
@@ -393,6 +392,93 @@ namespace Mapper
         }
 
 
+
+        internal void GetTags(ushort buildingId, Building data, List<osmWayTag> tags, ref string amenity)
+        {
+            var service = data.Info.m_class.m_service;
+            var ss = data.Info.m_class.m_subService;
+            var landuse = "";
+            var building = "";
+            var name = "";
+            switch (service)
+            {
+                case ItemClass.Service.Beautification:
+                    landuse = "recreation_ground";
+                    break;
+                case ItemClass.Service.Commercial:
+                    building = "retail";
+                    break;
+                case ItemClass.Service.Residential:
+                    building = "residential";
+                    break;
+                case ItemClass.Service.Office:
+                    building = "commercial";
+                    break;
+                case ItemClass.Service.Industrial:
+                    building = "industrial";               
+                    break;
+                case ItemClass.Service.Garbage:
+                    landuse = "landfill";               
+                    break;
+                case ItemClass.Service.Education:
+                    amenity = "school";
+                    building = "school";               
+                    break;
+                case ItemClass.Service.Electricity:
+                    tags.Add(new osmWayTag { k = "power", v = "plant" });
+                    break;
+                case ItemClass.Service.FireDepartment:
+                    amenity = "fire_station";
+                    building = "yes";
+                    break;
+                case ItemClass.Service.HealthCare:
+                    amenity = "hospital";
+                    building = "yes";
+                    break;
+                case ItemClass.Service.Monument:
+                    name = data.Info.name;
+                    building = "yes";
+                    break;
+                case ItemClass.Service.PoliceDepartment:
+                    amenity = "police";
+                    building = "yes";
+                    break;
+                case ItemClass.Service.PublicTransport:
+                    if (ss == ItemClass.SubService.PublicTransportMetro)
+                    {
+                    }
+                    else
+                    {
+                    }
+                        building = "train_station";
+                    break;
+                case ItemClass.Service.Tourism:                    
+                    building = "hotel";
+                    break;
+                default:
+                    return;
+            }
+
+            if ((data.m_flags & Building.Flags.CustomName) != Building.Flags.None)
+            {
+                var id = new InstanceID();
+                id.Building = buildingId;
+                name = Singleton<InstanceManager>.instance.GetName(id);
+            }
+
+            if (landuse != ""){
+                tags.Add(new osmWayTag { k = "landuse", v = landuse });
+            }
+            if (building != "")
+            {
+                tags.Add(new osmWayTag { k = "building", v = building });
+            }
+            if (name != "")
+            {
+                tags.Add(new osmWayTag { k = "name", v = name });
+            }
+
+        }
     }
 
 }
