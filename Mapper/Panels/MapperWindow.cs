@@ -12,6 +12,7 @@ using System.IO;
 using System.Net;
 using ColossalFramework.Importers;
 using System.Collections;
+using Mapper.OSM;
 
 namespace Mapper
 {
@@ -191,6 +192,7 @@ namespace Mapper
             y += vertPadding + 5;
 
             SetLabel(errorLabel, "No OSM data loaded.", x, y);
+            errorLabel.textScale = 0.6f;
             y += vertPadding + 12;
 
             SetButton(okButton, "Make Roads", y);
@@ -276,7 +278,7 @@ namespace Mapper
             {
                 var export = new OSMExport();
                 export.Export();
-                errorLabel.text = "City exported.";
+                errorLabel.text = String.Format("City exported to {0}.",Directory.GetCurrentDirectory());
             }
             catch (Exception ex)
             {

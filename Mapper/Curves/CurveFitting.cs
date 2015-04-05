@@ -7,7 +7,7 @@ using UnityEngine;
 
 /* Adapted from http://stackoverflow.com/questions/5525665/smoothing-a-hand-drawn-curve */
 
-namespace Mapper
+namespace Mapper.Curves
 {
 /*
 An Algorithm for Automatically Fitting Digitized Curves
@@ -23,7 +23,7 @@ from "Graphics Gems", Academic Press, 1990
     {
         /*  Fit the Bezier curves */
 
-        private const int MAXPOINTS = 5000;
+        private const int MAXPOINTS = 30000;
         public List<Segment> FitCurve(Vector2[] d, double error)
         {
             

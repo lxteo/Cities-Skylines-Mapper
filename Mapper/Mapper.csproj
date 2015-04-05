@@ -53,15 +53,16 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="CurveFitting.cs" />
-    <Compile Include="Douglas.cs" />
+    <Compile Include="Contours\Conrec.cs" />
+    <Compile Include="Curves\CurveFitting.cs" />
+    <Compile Include="Curves\Douglas.cs" />
     <Compile Include="MapperLoading.cs" />
     <Compile Include="MapperMod.cs" />
-    <Compile Include="osm.cs" />
-    <Compile Include="OSMExport.cs" />
+    <Compile Include="OSM\osm.cs" />
+    <Compile Include="OSM\OSMExport.cs" />
     <Compile Include="RoadData.cs" />
     <Compile Include="RoadMaker.cs" />
-    <Compile Include="OSMInterface.cs" />
+    <Compile Include="OSM\OSMInterface.cs" />
     <Compile Include="Panels\MapperWindow.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RoadMapping.cs" />

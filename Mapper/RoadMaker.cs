@@ -13,12 +13,12 @@ namespace Mapper
 {
     public class RoadMaker2
     {
-        public OSMInterface osm;
+        public OSM.OSMInterface osm;
         private Randomizer rand;
 
         private Dictionary<RoadTypes, NetInfo> netInfos = new Dictionary<RoadTypes, NetInfo>();
         private Dictionary<uint, ushort> nodeMap = new Dictionary<uint, ushort>();
-        public RoadMaker2(OSMInterface osm)
+        public RoadMaker2(OSM.OSMInterface osm)
         {
             this.osm = osm;
             this.rand = new Randomizer(0u);

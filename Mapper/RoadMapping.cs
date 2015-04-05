@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using UnityEngine;
+using Mapper.OSM;
 
 namespace Mapper
 {
@@ -50,12 +51,16 @@ namespace Mapper
         TrainTrack,
         TrainTrackBridge,
         TrainTrackElevated,
+        TrainConnectionTrack,
         Highway,
         HighwayBridge,
         HighwayElevated,
         HighwayRamp,
         HighwayRampElevated,
         HighwayBarrier,
+
+        AirplaneTaxiway,
+        Dam,
     }
 
 
@@ -107,6 +112,7 @@ namespace Mapper
             roadTypeMapping.Add(new KeyValuePair<string, string>("railway", "preserved"), RoadTypes.TrainTrack);
             roadTypeMapping.Add(new KeyValuePair<string, string>("railway", "rail"), RoadTypes.TrainTrack);
 
+            reverseMapping.Add(RoadTypes.TrainConnectionTrack, new KeyValuePair<string, string>("railway", "rail"));
             reverseMapping.Add(RoadTypes.TrainTrack,new KeyValuePair<string, string>("railway", "rail"));
             reverseMapping.Add(RoadTypes.TrainTrackElevated, new KeyValuePair<string, string>("railway", "rail"));
             reverseMapping.Add(RoadTypes.TrainTrackBridge, new KeyValuePair<string, string>("railway", "rail"));
@@ -155,6 +161,9 @@ namespace Mapper
             reverseMapping.Add(RoadTypes.LargeOnewayDecorationGrass, new KeyValuePair<string, string>("highway", "trunk"));
             reverseMapping.Add(RoadTypes.LargeOnewayDecorationTrees, new KeyValuePair<string, string>("highway", "trunk"));
             reverseMapping.Add(RoadTypes.LargeOnewayElevated, new KeyValuePair<string, string>("highway", "trunk"));
+
+            reverseMapping.Add(RoadTypes.AirplaneTaxiway, new KeyValuePair<string, string>("aeroway", "runway"));
+            reverseMapping.Add(RoadTypes.Dam, new KeyValuePair<string, string>("waterway", "dam"));
 
             pavedMapping.Add("paved",true);
             pavedMapping.Add("asphalt", true);
@@ -400,9 +409,13 @@ namespace Mapper
             var landuse = "";
             var building = "";
             var name = "";
+            var className = data.Info.m_class.name.ToLower();
             switch (service)
             {
                 case ItemClass.Service.Beautification:
+                    if (className.Contains("marker")){
+                        return;
+                    }
                     landuse = "recreation_ground";
                     break;
                 case ItemClass.Service.Commercial:
@@ -444,13 +457,17 @@ namespace Mapper
                     building = "yes";
                     break;
                 case ItemClass.Service.PublicTransport:
+                    if (!className.Contains("facility"))
+                    {
+                        return;
+                    }
                     if (ss == ItemClass.SubService.PublicTransportMetro)
                     {
                     }
                     else
                     {
                     }
-                        building = "train_station";
+                    building = "train_station";
                     break;
                 case ItemClass.Service.Tourism:                    
                     building = "hotel";

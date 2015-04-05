@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using UnityEngine;
 
-namespace Mapper
+namespace Mapper.Curves
 {
     /*
          * From http://www.codeproject.com/KB/cs/Douglas-Peucker_Algorithm.aspx
@@ -23,9 +23,9 @@ namespace Mapper
                 if (Points == null || Points.Count < 3)
                     return Points;
 
-                Int32 firstPoint = 0;
-                Int32 lastPoint = Points.Count - 1;
-                List<Int32> pointIndexsToKeep = new List<Int32>();
+                int firstPoint = 0;
+                int lastPoint = Points.Count - 1;
+                List<int> pointIndexsToKeep = new List<int>();
 
                 //Add the first and last index to the keepers
                 pointIndexsToKeep.Add(firstPoint);
@@ -41,8 +41,7 @@ namespace Mapper
                     }
                 }
 
-                DouglasPeuckerReduction(Points, firstPoint, lastPoint,
-                Tolerance, ref pointIndexsToKeep);
+                DouglasPeuckerReduction(Points, firstPoint, lastPoint,Tolerance, ref pointIndexsToKeep);
 
                 List<Vector2> returnPoints = new List<Vector2>();
                 pointIndexsToKeep.Sort();
@@ -62,17 +61,14 @@ namespace Mapper
             /// <param name="lastPoint">The last point.</param>
             /// <param name="tolerance">The tolerance.</param>
             /// <param name="pointIndexsToKeep">The point index to keep.</param>
-            private static void DouglasPeuckerReduction(List<Vector2>
-                points, Int32 firstPoint, Int32 lastPoint, Double tolerance,
-                ref List<Int32> pointIndexsToKeep)
+            private static void DouglasPeuckerReduction(List<Vector2> points, Int32 firstPoint, Int32 lastPoint, Double tolerance, ref List<Int32> pointIndexsToKeep)
             {
                 Double maxDistance = 0;
                 Int32 indexFarthest = 0;
 
                 for (Int32 index = firstPoint; index < lastPoint; index++)
                 {
-                    Double distance = PerpendicularDistance
-                        (points[firstPoint], points[lastPoint], points[index]);
+                    Double distance = PerpendicularDistance(points[firstPoint], points[lastPoint], points[index]);
                     if (distance > maxDistance)
                     {
                         maxDistance = distance;

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Mapper.Curves;
+using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.IO;
@@ -7,8 +8,9 @@ using System.Net;
 using System.Text;
 using System.Xml.Serialization;
 using UnityEngine;
+using Mapper.OSM;
 
-namespace Mapper
+namespace Mapper.OSM
 {
     public class OSMInterface
     {
@@ -34,14 +36,15 @@ namespace Mapper
             var ms = new MemoryStream(response);
             var reader = new StreamReader(ms);
 
-            var serializer = new XmlSerializer(typeof(Mapper.osm));
-            var osm = (Mapper.osm)serializer.Deserialize(reader);
+            var serializer = new XmlSerializer(typeof(osm));
+            var osm = (osm)serializer.Deserialize(reader);
             ms.Dispose();
             reader.Dispose();
             osm.bounds = bounds;
 
             Init(osm, scale);
         }
+
         public OSMInterface(string path, double scale, double tolerance, double curveTolerance, double tiles)
         {
             this.tolerance = tolerance;
@@ -50,10 +53,10 @@ namespace Mapper
             mapping = new RoadMapping(tiles);
             fc = new FitCurves();
 
-            var serializer = new XmlSerializer(typeof(Mapper.osm));
+            var serializer = new XmlSerializer(typeof(osm));
             var reader = new StreamReader(path);
 
-            var osm = (Mapper.osm)serializer.Deserialize(reader);
+            var osm = (osm)serializer.Deserialize(reader);
             reader.Dispose();
 
             Init(osm, scale);
@@ -224,7 +227,6 @@ namespace Mapper
                 }
                 else
                 {
-                    var a = 1;
                 }
             }
 
