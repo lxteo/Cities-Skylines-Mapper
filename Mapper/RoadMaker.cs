@@ -27,10 +27,14 @@ namespace Mapper
             for (var i = 0; i < PrefabCollection<NetInfo>.PrefabCount(); i += 1)
             {
                 var pp = PrefabCollection<NetInfo>.GetPrefab((uint)i);
-                if (roadTypes.Contains(pp.name.Replace(" ", "")))
+                if (pp != null)
                 {
-                    netInfos.Add((RoadTypes)Enum.Parse(typeof(RoadTypes), pp.name.Replace(" ", "")), pp);
+                    if (roadTypes.Contains(pp.name.Replace(" ", "")))
+                    {
+                        netInfos.Add((RoadTypes)Enum.Parse(typeof(RoadTypes), pp.name.Replace(" ", "")), pp);
+                    }
                 }
+                
             }
         }
 
@@ -84,7 +88,7 @@ namespace Mapper
                 elevation *= 11f;
 
                 var errors = default(ToolBase.ToolErrors);
-                ni = ni.m_netAI.GetInfo(elevation, 5f, false, false, false, false,ref errors);
+                ni = ni.m_netAI.GetInfo(elevation, elevation, 5f, false, false, false, false, ref errors);
 
             }
             if (!osm.nodes.ContainsKey(way.startNode) || !osm.nodes.ContainsKey(way.endNode))
@@ -206,7 +210,7 @@ namespace Mapper
             if (elevation > 4)
             {
                 var errors = default(ToolBase.ToolErrors);
-                nm.m_segments.m_buffer[segmentId].Info = nm.m_segments.m_buffer[segmentId].Info.m_netAI.GetInfo(elevation,5,false,false,false,false,ref errors);
+                nm.m_segments.m_buffer[segmentId].Info = nm.m_segments.m_buffer[segmentId].Info.m_netAI.GetInfo(elevation,elevation,5,false,false,false,false,ref errors);
             }
         }
 

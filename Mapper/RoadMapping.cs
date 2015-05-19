@@ -198,6 +198,7 @@ namespace Mapper
             }
             rt = RoadTypes.None;
             bool oneWay = false;
+            bool invert = false;
             var surface = "";
 
             foreach (var tag in way.tag)
@@ -205,6 +206,10 @@ namespace Mapper
                 if (tag.k.Trim().ToLower() == "oneway")
                 {
                     oneWay = true;
+                    if (tag.v.Trim() == "-1")
+                    {
+                        invert = true;
+                    }
                 }
                 else if(tag.k.Trim().ToLower() =="bridge"){
                     layer = Math.Max(layer, 1);
@@ -239,9 +244,19 @@ namespace Mapper
                 }
 
                 points = new List<uint>();
-                foreach (var nd in way.nd)
+                if (invert)
                 {
-                    points.Add(nd.@ref);
+                    for (var i = way.nd.Count() - 1; i >= 0; i -=1 )
+                    {
+                        points.Add(way.nd[i].@ref);
+                    }
+                }
+                else
+                {
+                    foreach (var nd in way.nd)
+                    {
+                        points.Add(nd.@ref);
+                    }
                 }
                 return true;
             }
