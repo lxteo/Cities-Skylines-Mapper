@@ -572,11 +572,11 @@ namespace Mapper.OSM
     public partial class osmWayND
     {
 
-        private uint refField;
+        private ulong refField;
 
         /// <remarks/>
         [System.Xml.Serialization.XmlAttributeAttribute()]
-        public uint @ref
+        public ulong @ref
         {
             get
             {
@@ -768,7 +768,7 @@ namespace Mapper.OSM
 
         private string typeField;
 
-        private uint refField;
+        private ulong refField;
 
         private string roleField;
 
@@ -788,7 +788,7 @@ namespace Mapper.OSM
 
         /// <remarks/>
         [System.Xml.Serialization.XmlAttributeAttribute()]
-        public uint @ref
+        public ulong @ref
         {
             get
             {
