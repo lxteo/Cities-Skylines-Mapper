@@ -17,7 +17,7 @@ namespace Mapper.OSM
         public RoadMapping mapping;
         private FitCurves fc;
 
-        public Dictionary<uint, Vector2> nodes = new Dictionary<uint, Vector2>();
+        public Dictionary<string, Vector2> nodes = new Dictionary<string, Vector2>();
         public LinkedList<Way> ways = new LinkedList<Way>();
 
         double tolerance = 10;
@@ -81,27 +81,27 @@ namespace Mapper.OSM
             foreach (var way in osm.way.OrderBy(c => c.changeset))
             {
                 RoadTypes rt = RoadTypes.None;
-                List<uint> points = null;
+                List<string> points = null;
                 int layer = 0;
 
                 if (mapping.Mapped(way, ref points, ref rt, ref layer))
                 {
                     Vector2 previousPoint = Vector2.zero;
-                    var currentList = new List<uint>();
+                    var currentList = new List<ulong>();
                     for (var i = 0; i < points.Count; i += 1)
                     {
                         var pp = points[i];
                         if (nodes.ContainsKey(pp))
                         {
-                            currentList.Add(pp);
+                            currentList.Add(Convert.ToUInt64(pp));
                             previousPoint = nodes[pp];
                         }
                         else
                         {
-                            if (currentList.Count() > 1 || currentList.Contains(pp))
+                            if (currentList.Count() > 1 || currentList.Contains(Convert.ToUInt64(pp)))
                             {
                                 ways.AddLast(new Way(currentList, rt, layer));
-                                currentList = new List<uint>();
+                                currentList = new List<ulong>();
                             }
                         }
 
@@ -113,7 +113,7 @@ namespace Mapper.OSM
                 }
             }
 
-            var intersection = new Dictionary<uint, List<Way>>();
+            var intersection = new Dictionary<ulong, List<Way>>();
             foreach (var ww in ways)
             {
                 foreach (var pp in ww.nodes)
@@ -159,7 +159,7 @@ namespace Mapper.OSM
                 float length = 0f;
                 for (var i = 0; i < way.nodes.Count() - 1; i += 1)
                 {
-                    length += (nodes[way.nodes[i + 1]] - nodes[way.nodes[i]]).magnitude;
+                    length += (nodes[way.nodes[i + 1].ToString()] - nodes[way.nodes[i].ToString()]).magnitude;
                 }
                 int segments = Mathf.FloorToInt(length / 100f) + 1;
                 float averageLength = length / (float)segments;
@@ -171,7 +171,7 @@ namespace Mapper.OSM
                 var splits = new List<int>();
                 for (var i = 0; i < way.nodes.Count() - 1; i += 1)
                 {
-                    length += (nodes[way.nodes[i + 1]] - nodes[way.nodes[i]]).magnitude;
+                    length += (nodes[way.nodes[i + 1].ToString()] - nodes[way.nodes[i].ToString()]).magnitude;
                     if (length > averageLength && i != way.nodes.Count - 2)
                     {
                         splits.Add(i + 1);
@@ -216,7 +216,7 @@ namespace Mapper.OSM
                 var points = new List<Vector2>();
                 foreach (var pp in way.nodes)
                 {
-                    points.Add(nodes[pp]);
+                    points.Add(nodes[pp.ToString()]);
                 }
 
                 List<Vector2> simplified;

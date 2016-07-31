@@ -376,7 +376,7 @@ namespace Mapper.OSM
             tags.Add(new osmNodeTag { k = "place", v = "city" });
             tags.Add(new osmNodeTag { k = "population", v = Singleton<DistrictManager>.instance.m_districts.m_buffer[0].m_populationData.m_finalCount.ToString() });
 
-            nodes.Add(new osmNode { changeset = 50000000, id = (uint)nodeCount, version = 1, timestamp = DateTime.Now, user = "CS", lon = lon, lat = lat, tag = tags.ToArray() });
+            nodes.Add(new osmNode { changeset = 50000000, id = nodeCount.ToString(), version = 1, timestamp = DateTime.Now, user = "CS", lon = lon, lat = lat, tag = tags.ToArray() });
         }
 
         private void AddDistricts()
@@ -400,14 +400,14 @@ namespace Mapper.OSM
             tags.Add(new osmNodeTag { k = "name", v = name });
             tags.Add(new osmNodeTag { k = "place", v = place });
 
-            nodes.Add(new osmNode { changeset = 50000000, id = (uint)nodeCount, version = 1, timestamp = DateTime.Now, user = "CS", lon = lon, lat = lat, tag = tags.ToArray() });
+            nodes.Add(new osmNode { changeset = 50000000, id = nodeCount.ToString(), version = 1, timestamp = DateTime.Now, user = "CS", lon = lon, lat = lat, tag = tags.ToArray() });
             nodeCount += 1;
         }
 
         private osmNode[] FilterUnusedNodes()
         {
 
-            var found = new HashSet<uint>();
+            var found = new HashSet<string>();
             foreach (var way in ways)
             {
                 foreach (var nd in way.nd)
@@ -484,17 +484,17 @@ namespace Mapper.OSM
                 var bezier = new Bezier3(start, a, b, end);
 
                 nd = new osmWayND[5];
-                nd[0] = new osmWayND { @ref = startNode };
+                nd[0] = new osmWayND { @ref = startNode.ToString() };
                 nd[1] = new osmWayND { @ref = AddNode(bezier.Position(0.25f)) };
                 nd[2] = new osmWayND { @ref = AddNode(bezier.Position(0.5f)) };
                 nd[3] = new osmWayND { @ref = AddNode(bezier.Position(0.75f)) };
-                nd[4] = new osmWayND { @ref = endNode };
+                nd[4] = new osmWayND { @ref = endNode.ToString() };
             }
             else
             {
                 nd = new osmWayND[2];
-                nd[0] = new osmWayND { @ref = startNode };
-                nd[1] = new osmWayND { @ref = endNode };
+                nd[0] = new osmWayND { @ref = startNode.ToString() };
+                nd[1] = new osmWayND { @ref = endNode.ToString() };
             }
 
             byte elevation = (byte)(Mathf.Clamp((nm.m_nodes.m_buffer[startNode].m_elevation + nm.m_nodes.m_buffer[endNode].m_elevation) / 2, 0, 255));
@@ -506,7 +506,7 @@ namespace Mapper.OSM
             return new osmWay { changeset = 50000000, id = (uint)i, timestamp = DateTime.Now, user = "CS", version = 1, nd = nd, tag = tags.ToArray() };
         }
 
-        private uint AddNode(Vector3 vector3, Dictionary<string, string> tags = null)
+        private string AddNode(Vector3 vector3, Dictionary<string, string> tags = null)
         {
             var node = AddNode(nodeCount, vector3);
             if (tags != null)
@@ -520,7 +520,7 @@ namespace Mapper.OSM
             }
             nodes.Add(node);
             nodeCount += 1;
-            return (uint)(nodeCount - 1);
+            return (nodeCount - 1).ToString();
         }
 
         private osmNode AddNode(int i, NetNode netNode)
@@ -533,7 +533,7 @@ namespace Mapper.OSM
             decimal lon = 0;
             decimal lat = 0;
             mapping.GetPos(vector3, out lon, out lat);
-            return new osmNode { changeset = 50000000, id = (uint)i, version = 1, timestamp = DateTime.Now, user = "CS", lon = lon, lat = lat, };
+            return new osmNode { changeset = 50000000, id = i.ToString(), version = 1, timestamp = DateTime.Now, user = "CS", lon = lon, lat = lat, };
         }
 
     }

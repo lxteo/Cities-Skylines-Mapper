@@ -190,7 +190,7 @@ namespace Mapper
         }
 
 
-        public bool Mapped(osmWay way, ref List<uint> points, ref RoadTypes rt, ref int layer)
+        public bool Mapped(osmWay way, ref List<string> points, ref RoadTypes rt, ref int layer)
         {
             if (way.tag == null || way.nd == null || way.nd.Count() < 2)
             {
@@ -243,7 +243,7 @@ namespace Mapper
                     rt = CheckSurface(rt, surface);
                 }
 
-                points = new List<uint>();
+                points = new List<string>();
                 if (invert)
                 {
                     for (var i = way.nd.Count() - 1; i >= 0; i -=1 )

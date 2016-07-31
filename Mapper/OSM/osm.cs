@@ -252,7 +252,7 @@ namespace Mapper.OSM
 
         private osmNodeTag[] tagField;
 
-        private uint idField;
+        private string idField;
 
         private decimal latField;
 
@@ -284,7 +284,7 @@ namespace Mapper.OSM
 
         /// <remarks/>
         [System.Xml.Serialization.XmlAttributeAttribute()]
-        public uint id
+        public string id
         {
             get
             {
@@ -572,11 +572,11 @@ namespace Mapper.OSM
     public partial class osmWayND
     {
 
-        private ulong refField;
+        private string refField;
 
         /// <remarks/>
         [System.Xml.Serialization.XmlAttributeAttribute()]
-        public ulong @ref
+        public string @ref
         {
             get
             {
@@ -768,7 +768,7 @@ namespace Mapper.OSM
 
         private string typeField;
 
-        private ulong refField;
+        private string refField;
 
         private string roleField;
 
@@ -788,7 +788,7 @@ namespace Mapper.OSM
 
         /// <remarks/>
         [System.Xml.Serialization.XmlAttributeAttribute()]
-        public ulong @ref
+        public string @ref
         {
             get
             {

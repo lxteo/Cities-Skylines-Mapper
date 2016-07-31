@@ -48,23 +48,23 @@ namespace Mapper
     public class Way
     {
         public bool valid = false;
-        public List<uint> nodes = new List<uint>();
+        public List<ulong> nodes = new List<ulong>();
         public List<Segment> segments;
 
         public RoadTypes roadTypes;
         public int layer;
 
-        public uint startNode
+        public ulong startNode
         {
             get { return nodes[0]; }
         }
 
-        public uint endNode
+        public ulong endNode
         {
             get { return nodes[nodes.Count()-1]; }
         }
 
-        public Way(List<uint> points, RoadTypes rt,int layer)
+        public Way(List<ulong> points, RoadTypes rt,int layer)
         {
             this.roadTypes = rt;
             this.nodes = points;

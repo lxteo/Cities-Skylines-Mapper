@@ -17,7 +17,7 @@ namespace Mapper
         private Randomizer rand;
 
         private Dictionary<RoadTypes, NetInfo> netInfos = new Dictionary<RoadTypes, NetInfo>();
-        private Dictionary<uint, ushort> nodeMap = new Dictionary<uint, ushort>();
+        private Dictionary<ulong, ushort> nodeMap = new Dictionary<ulong, ushort>();
         public RoadMaker2(OSM.OSMInterface osm)
         {
             this.osm = osm;
@@ -91,7 +91,7 @@ namespace Mapper
                 ni = ni.m_netAI.GetInfo(elevation, elevation, 5f, false, false, false, false, ref errors);
 
             }
-            if (!osm.nodes.ContainsKey(way.startNode) || !osm.nodes.ContainsKey(way.endNode))
+            if (!osm.nodes.ContainsKey(way.startNode.ToString()) || !osm.nodes.ContainsKey(way.endNode.ToString()))
             {
                 yield return null;
             }
@@ -104,7 +104,7 @@ namespace Mapper
             }
             else
             {
-                CreateNode(out startNode, ref rand, ni, osm.nodes[way.startNode],elevation);
+                CreateNode(out startNode, ref rand, ni, osm.nodes[way.startNode.ToString()],elevation);
                 AdjustElevation(startNode, elevation);
                 nodeMap.Add(way.startNode, startNode);
             }
@@ -117,7 +117,7 @@ namespace Mapper
             }
             else
             {
-                CreateNode(out endNode, ref rand, ni, osm.nodes[way.endNode],elevation);
+                CreateNode(out endNode, ref rand, ni, osm.nodes[way.endNode.ToString()],elevation);
                 AdjustElevation(endNode, elevation);
                 nodeMap.Add(way.endNode, endNode);
             }
