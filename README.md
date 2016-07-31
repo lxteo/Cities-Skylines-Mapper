@@ -22,6 +22,5 @@ Click the export to osm button to export your city into an osm map. You can view
 ##Known issues##
 Scale isn't working correctly. If you have any other issues please tell me which coordinates you used! 
 
-My BTC Address: 1MTvtciWFo2gCWXsX3F6C4ppk8mRY6AkuR
 
 © OpenStreetMap contributors
