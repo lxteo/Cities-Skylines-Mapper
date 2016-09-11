@@ -62,10 +62,10 @@ namespace Mapper
         RoadMaker2 roadMaker;
         bool createRoads;
         int currentIndex = 0;
-         bool peds = true;
-         bool roads = true;
-         bool highways = true;
-         private byte[] m_LastHeightmap16;
+        bool peds = true;
+        bool roads = true;
+        bool highways = true;
+        private byte[] m_LastHeightmap16;
 
         public override void Awake()
         {
@@ -308,23 +308,10 @@ namespace Mapper
         {
             try
             {
-                decimal startLat = 0M;
-                decimal startLon = 0M;
-                decimal endLat = 0M;
-                decimal endLon = 0M;
                 var scale = double.Parse(scaleTextBox.text.Trim());
                 var tt = double.Parse(tiles.text.Trim());
 
-                if (!GetCoordinates(tt,scale,ref startLon, ref startLat, ref endLon, ref endLat))
-                {
-                    return;
-                }
-
-                var ob = new osmBounds();
-                ob.minlon = startLon;
-                ob.minlat = startLat;
-                ob.maxlon = endLon;
-                ob.maxlat = endLat;
+                var ob = GetBounds(scale, tt);
 
                 var osm = new OSMInterface(ob, scale, double.Parse(tolerance.text.Trim()), double.Parse(curveTolerance.text.Trim()), tt);
                 currentIndex = 0;
@@ -340,7 +327,7 @@ namespace Mapper
             }
         }
 
-        private bool GetCoordinates(double tt,double scale, ref decimal startLon, ref decimal startLat, ref decimal endLon, ref decimal endLat)
+        private bool GetCoordinates(double tt, double scale, ref decimal startLon, ref decimal startLat, ref decimal endLon, ref decimal endLat)
         {
             var text = coordinates.text.Trim();
             var split = text.Split(new string[] { "," }, StringSplitOptions.RemoveEmptyEntries);
@@ -357,7 +344,7 @@ namespace Mapper
             }
             else if (split.Count() == 4)
             {
-                if (!decimal.TryParse(split[0], out startLon) || !decimal.TryParse(split[1], out startLat) || !decimal.TryParse(split[2], out endLon) || !decimal.TryParse(split[3], out endLat))
+                if (!decimal.TryParse(split[0], out endLon) || !decimal.TryParse(split[1], out startLat) || !decimal.TryParse(split[2], out startLon) || !decimal.TryParse(split[3], out endLat))
                 {
                     errorLabel.text = "Coordinates must be numbers.";
                     return false;
@@ -371,17 +358,37 @@ namespace Mapper
                 return false;
             }
 
-            var lonFactor = (decimal)Math.Abs((scale * (double)(endLon - midLon) * tt / 4.5));
-            var latFactor = (decimal)Math.Abs((scale * (double)(endLat - midLat) * tt / 4.5));
-            startLon = midLon - lonFactor;
-            endLon = midLon + lonFactor;
-            startLat = midLat - latFactor;
-            endLat = midLat + latFactor;
             return true;
+        }
+
+        private OSM.osmBounds GetBounds(double scale, double tt)
+        {
+            decimal startLat = 0M;
+            decimal startLon = 0M;
+            decimal endLat = 0M;
+            decimal endLon = 0M;
+
+            if (!GetCoordinates(tt, scale, ref startLon, ref startLat, ref endLon, ref endLat))
+            {
+                return null;
+            }
+
+            var ob = new osmBounds();
+            ob.minlon = startLon;
+            ob.minlat = startLat;
+            ob.maxlon = endLon;
+            ob.maxlat = endLat;
+            return ob;
         }
 
         private void loadMapButton_eventClick(UIComponent component, UIMouseEventParameter eventParam)
         {
+            var scale = double.Parse(scaleTextBox.text.Trim());
+            var tt = double.Parse(tiles.text.Trim());
+
+            var ob = GetBounds(scale, tt);
+
+
             var path = pathTextBox.text.Trim();
             if (!File.Exists(path))
             {
@@ -394,7 +401,7 @@ namespace Mapper
             }
             try
             {
-                var osm = new OSMInterface(pathTextBox.text.Trim(), double.Parse(scaleTextBox.text.Trim()), double.Parse(tolerance.text.Trim()), double.Parse(curveTolerance.text.Trim()), double.Parse(tiles.text.Trim()));
+                var osm = new OSMInterface(ob, pathTextBox.text.Trim(), double.Parse(scaleTextBox.text.Trim()), double.Parse(tolerance.text.Trim()), double.Parse(curveTolerance.text.Trim()), double.Parse(tiles.text.Trim()));
                 currentIndex = 0;
                 roadMaker = new RoadMaker2(osm);
                 errorLabel.text = "File Loaded.";
@@ -501,21 +508,18 @@ namespace Mapper
                 var hh = highways;                
                 if (currentIndex < roadMaker.osm.ways.Count())
                 {
-                    //roadMaker.MakeRoad(currentIndex);
                     SimulationManager.instance.AddAction(roadMaker.MakeRoad(currentIndex,pp,rr,hh));
                     currentIndex += 1;
                 }
 
                 if (currentIndex < roadMaker.osm.ways.Count())
                 {
-                    //roadMaker.MakeRoad(currentIndex);
                     SimulationManager.instance.AddAction(roadMaker.MakeRoad(currentIndex, pp, rr, hh));
                     currentIndex += 1;
                 }
 
                 if (currentIndex < roadMaker.osm.ways.Count())
                 {
-                    //roadMaker.MakeRoad(currentIndex);
                     SimulationManager.instance.AddAction(roadMaker.MakeRoad(currentIndex, pp, rr, hh));
                     currentIndex += 1;
                     var instance = Singleton<NetManager>.instance;

@@ -370,12 +370,12 @@ namespace Mapper
         public void MapCoordinates(osmNode node)
         {
             Vector2 pos = Vector2.zero;
-            GetPos(node.lon, node.lat,ref pos);
+            GetPos(node.lat, node.lon,ref pos);
         }
 
-        public bool GetPos(decimal lon, decimal lat, ref Vector2 pos)
-        {            
-            pos = new Vector2((float)(((float)lon - middleLatLon.x) * scaleX), (float)(((float)lat - middleLatLon.y) * scaleY));
+        public bool GetPos(decimal lat, decimal lon, ref Vector2 pos)
+        {
+            pos = new Vector2((float)(((float)lat - middleLatLon.x) * scaleX), (float)(((float)lon - middleLatLon.y) * scaleY));
 
             if (Math.Abs(pos.x) > maxBounds || Math.Abs(pos.y) > maxBounds)
             {
