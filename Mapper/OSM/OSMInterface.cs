@@ -32,20 +32,33 @@ namespace Mapper.OSM
             fc = new FitCurves();
 
             var client = new WebClient();
-            var response = client.DownloadData("http://www.overpass-api.de/api/xapi?map?bbox=" + string.Format("{0},{1},{2},{3}", bounds.minlon.ToString(), bounds.minlat.ToString(), bounds.maxlon.ToString(), bounds.maxlat.ToString()));
-            var ms = new MemoryStream(response);
-            var reader = new StreamReader(ms);
+            
+            string nodes = "http://overpass-api.de/api/interpreter?data=node(" + string.Format("{0},{1},{2},{3}", bounds.maxlat.ToString(), bounds.minlon.ToString(), bounds.minlat.ToString(), bounds.maxlon.ToString()) + ");out;";
+            string ways = "http://overpass-api.de/api/interpreter?data=way(" + string.Format("{0},{1},{2},{3}", bounds.maxlat.ToString(), bounds.minlon.ToString(), bounds.minlat.ToString(), bounds.maxlon.ToString()) + ");out;";
+
+            
+            var nodesResponse = client.DownloadData(nodes);
+            var waysResponse = client.DownloadData(ways);
+            var nodesMemoryStream = new MemoryStream(nodesResponse);
+            var wayssMemoryStream = new MemoryStream(waysResponse);
+            var nodesReader = new StreamReader(nodesMemoryStream);
+            var waysReader = new StreamReader(wayssMemoryStream);
 
             var serializer = new XmlSerializer(typeof(osm));
-            var osm = (osm)serializer.Deserialize(reader);
-            ms.Dispose();
-            reader.Dispose();
-            osm.bounds = bounds;
+            var nodesOsm = (osm)serializer.Deserialize(nodesReader);
+            var waysOsm = (osm)serializer.Deserialize(waysReader);
+            nodesOsm.way = waysOsm.way;
+            
+            nodesMemoryStream.Dispose();
+            wayssMemoryStream.Dispose();
+            nodesReader.Dispose();
+            waysReader.Dispose();
 
-            Init(osm, scale);
+            nodesOsm.bounds = bounds;
+            Init(nodesOsm, scale);
         }
 
-        public OSMInterface(string path, double scale, double tolerance, double curveTolerance, double tiles)
+        public OSMInterface(osmBounds bounds, string path, double scale, double tolerance, double curveTolerance, double tiles)
         {
             this.tolerance = tolerance;
             this.curveError = curveTolerance;
@@ -59,6 +72,8 @@ namespace Mapper.OSM
             var osm = (osm)serializer.Deserialize(reader);
             reader.Dispose();
 
+            osm.bounds = bounds;
+            
             Init(osm, scale);
         }
 
