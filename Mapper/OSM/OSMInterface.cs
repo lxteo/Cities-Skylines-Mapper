@@ -1,14 +1,11 @@
 ﻿using Mapper.Curves;
 using System;
 using System.Collections.Generic;
-using System.Collections.Specialized;
 using System.IO;
 using System.Linq;
 using System.Net;
-using System.Text;
 using System.Xml.Serialization;
 using UnityEngine;
-using Mapper.OSM;
 
 namespace Mapper.OSM
 {
@@ -32,11 +29,15 @@ namespace Mapper.OSM
             fc = new FitCurves();
 
             var client = new WebClient();
-            
-            string nodes = "http://overpass-api.de/api/interpreter?data=node(" + string.Format("{0},{1},{2},{3}", bounds.maxlat.ToString(), bounds.minlon.ToString(), bounds.minlat.ToString(), bounds.maxlon.ToString()) + ");out;";
-            string ways = "http://overpass-api.de/api/interpreter?data=way(" + string.Format("{0},{1},{2},{3}", bounds.maxlat.ToString(), bounds.minlon.ToString(), bounds.minlat.ToString(), bounds.maxlon.ToString()) + ");out;";
 
-            
+            string nodes = "http://overpass-api.de/api/interpreter?data=node(" +
+                           string.Format("{0},{1},{2},{3}", bounds.maxlat.ToString(), bounds.minlon.ToString(),
+                               bounds.minlat.ToString(), bounds.maxlon.ToString()) + ");out;";
+            string ways = "http://overpass-api.de/api/interpreter?data=way(" +
+                          string.Format("{0},{1},{2},{3}", bounds.maxlat.ToString(), bounds.minlon.ToString(),
+                              bounds.minlat.ToString(), bounds.maxlon.ToString()) + ");out;";
+
+
             var nodesResponse = client.DownloadData(nodes);
             var waysResponse = client.DownloadData(ways);
             var nodesMemoryStream = new MemoryStream(nodesResponse);
@@ -45,10 +46,10 @@ namespace Mapper.OSM
             var waysReader = new StreamReader(wayssMemoryStream);
 
             var serializer = new XmlSerializer(typeof(osm));
-            var nodesOsm = (osm)serializer.Deserialize(nodesReader);
-            var waysOsm = (osm)serializer.Deserialize(waysReader);
+            var nodesOsm = (osm) serializer.Deserialize(nodesReader);
+            var waysOsm = (osm) serializer.Deserialize(waysReader);
             nodesOsm.way = waysOsm.way;
-            
+
             nodesMemoryStream.Dispose();
             wayssMemoryStream.Dispose();
             nodesReader.Dispose();
@@ -58,7 +59,8 @@ namespace Mapper.OSM
             Init(nodesOsm, scale);
         }
 
-        public OSMInterface(osmBounds bounds, string path, double scale, double tolerance, double curveTolerance, double tiles)
+        public OSMInterface(osmBounds bounds, string path, double scale, double tolerance, double curveTolerance,
+            double tiles)
         {
             this.tolerance = tolerance;
             this.curveError = curveTolerance;
@@ -69,15 +71,15 @@ namespace Mapper.OSM
             var serializer = new XmlSerializer(typeof(osm));
             var reader = new StreamReader(path);
 
-            var osm = (osm)serializer.Deserialize(reader);
+            var osm = (osm) serializer.Deserialize(reader);
             reader.Dispose();
 
             osm.bounds = bounds;
-            
+
             Init(osm, scale);
         }
 
-        private void Init(osm osm,double scale)
+        private void Init(osm osm, double scale)
         {
             mapping.InitBoundingBox(osm.bounds, scale);
 
@@ -119,7 +121,6 @@ namespace Mapper.OSM
                                 currentList = new List<ulong>();
                             }
                         }
-
                     }
                     if (currentList.Count() > 1)
                     {
@@ -177,7 +178,7 @@ namespace Mapper.OSM
                     length += (nodes[way.nodes[i + 1].ToString()] - nodes[way.nodes[i].ToString()]).magnitude;
                 }
                 int segments = Mathf.FloorToInt(length / 100f) + 1;
-                float averageLength = length / (float)segments;
+                float averageLength = length / (float) segments;
                 if (segments <= 1)
                 {
                     continue;
@@ -255,8 +256,5 @@ namespace Mapper.OSM
                 this.ways = newList;
             }
         }
-
-
-
     }
 }

@@ -76,7 +76,8 @@ namespace Mapper.Contours
         /// <param name="renderer">
         /// The renderer.
         /// </param>
-        public static void Contour(double[,] d, double[] x, double[] y, double[] z, Dictionary<Vector2,List<Vector2>>[] result)
+        public static void Contour(double[,] d, double[] x, double[] y, double[] z,
+            Dictionary<Vector2, List<Vector2>>[] result)
         {
             double x1 = 0.0;
             double x2 = 0.0;
@@ -96,16 +97,17 @@ namespace Mapper.Contours
 
             // The indexing of im and jm should be noted as it has to start from zero
             // unlike the fortran counter part
-            int[] im = { 0, 1, 1, 0 };
-            int[] jm = { 0, 0, 1, 1 };
+            int[] im = {0, 1, 1, 0};
+            int[] jm = {0, 0, 1, 1};
 
             // Note that castab is arranged differently from the FORTRAN code because
             // Fortran and C/C++ arrays are transposed of each other, in this case
             // it is more tricky as castab is in 3 dimension
-            int[, ,] castab = {
-                                 { { 0, 0, 8 }, { 0, 2, 5 }, { 7, 6, 9 } }, { { 0, 3, 4 }, { 1, 3, 1 }, { 4, 3, 0 } }, 
-                                 { { 9, 6, 7 }, { 5, 2, 0 }, { 8, 0, 0 } }
-                             };
+            int[,,] castab =
+            {
+                {{0, 0, 8}, {0, 2, 5}, {7, 6, 9}}, {{0, 3, 4}, {1, 3, 1}, {4, 3, 0}},
+                {{9, 6, 7}, {5, 2, 0}, {8, 0, 0}}
+            };
 
             Func<int, int, double> xsect = (p1, p2) => (h[p2] * xh[p1] - h[p1] * xh[p2]) / (h[p2] - h[p1]);
             Func<int, int, double> ysect = (p1, p2) => (h[p2] * yh[p1] - h[p1] * yh[p2]) / (h[p2] - h[p1]);
@@ -262,13 +264,13 @@ namespace Mapper.Contours
                                         }
 
                                         var thisLevel = result[k];
-                                        var start = new Vector2((float)x1, (float)y1);
-                                        var end = new Vector2((float)x2, (float)y2);
+                                        var start = new Vector2((float) x1, (float) y1);
+                                        var end = new Vector2((float) x2, (float) y2);
                                         if (!thisLevel.ContainsKey(start))
                                         {
                                             thisLevel.Add(start, new List<Vector2>());
                                         }
-                                        thisLevel[start].Add(end);                                     
+                                        thisLevel[start].Add(end);
                                     }
                                 }
                             }
@@ -277,6 +279,5 @@ namespace Mapper.Contours
                 }
             }
         }
-
     }
 }

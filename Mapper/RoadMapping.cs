@@ -2,7 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using UnityEngine;
 using Mapper.OSM;
 
@@ -69,10 +68,15 @@ namespace Mapper
         public const int GameSizeMetres = 18000;
         public const int GameSizeGameCoordinates = 1920 * 9;
         double maxBounds;
-        private Dictionary<KeyValuePair<string, string>, RoadTypes> roadTypeMapping = new Dictionary<KeyValuePair<string, string>, RoadTypes>();
-        private Dictionary<RoadTypes, KeyValuePair<string, string>> reverseMapping = new Dictionary<RoadTypes,KeyValuePair<string, string>>();
+
+        private Dictionary<KeyValuePair<string, string>, RoadTypes> roadTypeMapping =
+            new Dictionary<KeyValuePair<string, string>, RoadTypes>();
+
+        private Dictionary<RoadTypes, KeyValuePair<string, string>> reverseMapping =
+            new Dictionary<RoadTypes, KeyValuePair<string, string>>();
+
         private Dictionary<string, bool> pavedMapping = new Dictionary<string, bool>();
-        
+
         //private Vector2 startLatLon = new Vector2(float.MaxValue, float.MaxValue);
         private Vector2 middleLatLon = new Vector2(float.MinValue, float.MinValue);
         //private Vector2 endLatLon;
@@ -86,7 +90,8 @@ namespace Mapper
             roadTypeMapping.Add(new KeyValuePair<string, string>("highway", "trunk"), RoadTypes.LargeRoadDecorationGrass);
             roadTypeMapping.Add(new KeyValuePair<string, string>("highway", "primary"), RoadTypes.MediumRoad);
             roadTypeMapping.Add(new KeyValuePair<string, string>("highway", "secondary"), RoadTypes.MediumRoad);
-            roadTypeMapping.Add(new KeyValuePair<string, string>("highway", "tertiary"), RoadTypes.MediumRoadDecorationGrass);
+            roadTypeMapping.Add(new KeyValuePair<string, string>("highway", "tertiary"),
+                RoadTypes.MediumRoadDecorationGrass);
             roadTypeMapping.Add(new KeyValuePair<string, string>("highway", "unclassified"), RoadTypes.BasicRoad);
             roadTypeMapping.Add(new KeyValuePair<string, string>("highway", "bus_guideway"), RoadTypes.BasicRoad);
             roadTypeMapping.Add(new KeyValuePair<string, string>("highway", "road"), RoadTypes.BasicRoad);
@@ -113,7 +118,7 @@ namespace Mapper
             roadTypeMapping.Add(new KeyValuePair<string, string>("railway", "rail"), RoadTypes.TrainTrack);
 
             reverseMapping.Add(RoadTypes.TrainConnectionTrack, new KeyValuePair<string, string>("railway", "rail"));
-            reverseMapping.Add(RoadTypes.TrainTrack,new KeyValuePair<string, string>("railway", "rail"));
+            reverseMapping.Add(RoadTypes.TrainTrack, new KeyValuePair<string, string>("railway", "rail"));
             reverseMapping.Add(RoadTypes.TrainTrackElevated, new KeyValuePair<string, string>("railway", "rail"));
             reverseMapping.Add(RoadTypes.TrainTrackBridge, new KeyValuePair<string, string>("railway", "rail"));
 
@@ -122,7 +127,8 @@ namespace Mapper
             reverseMapping.Add(RoadTypes.PedestrianElevated, new KeyValuePair<string, string>("highway", "pedestrian"));
 
             reverseMapping.Add(RoadTypes.HighwayRamp, new KeyValuePair<string, string>("highway", "secondary_link"));
-            reverseMapping.Add(RoadTypes.HighwayRampElevated, new KeyValuePair<string, string>("highway", "secondary_link"));
+            reverseMapping.Add(RoadTypes.HighwayRampElevated,
+                new KeyValuePair<string, string>("highway", "secondary_link"));
 
             reverseMapping.Add(RoadTypes.Highway, new KeyValuePair<string, string>("highway", "motorway"));
             reverseMapping.Add(RoadTypes.HighwayBarrier, new KeyValuePair<string, string>("highway", "motorway"));
@@ -134,8 +140,10 @@ namespace Mapper
 
             reverseMapping.Add(RoadTypes.BasicRoad, new KeyValuePair<string, string>("highway", "residential"));
             reverseMapping.Add(RoadTypes.BasicRoadBridge, new KeyValuePair<string, string>("highway", "residential"));
-            reverseMapping.Add(RoadTypes.BasicRoadDecorationGrass, new KeyValuePair<string, string>("highway", "residential"));
-            reverseMapping.Add(RoadTypes.BasicRoadDecorationTrees, new KeyValuePair<string, string>("highway", "residential"));
+            reverseMapping.Add(RoadTypes.BasicRoadDecorationGrass,
+                new KeyValuePair<string, string>("highway", "residential"));
+            reverseMapping.Add(RoadTypes.BasicRoadDecorationTrees,
+                new KeyValuePair<string, string>("highway", "residential"));
             reverseMapping.Add(RoadTypes.BasicRoadElevated, new KeyValuePair<string, string>("highway", "residential"));
 
             reverseMapping.Add(RoadTypes.OnewayRoad, new KeyValuePair<string, string>("highway", "road"));
@@ -146,26 +154,32 @@ namespace Mapper
 
             reverseMapping.Add(RoadTypes.MediumRoad, new KeyValuePair<string, string>("highway", "tertiary"));
             reverseMapping.Add(RoadTypes.MediumRoadBridge, new KeyValuePair<string, string>("highway", "tertiary"));
-            reverseMapping.Add(RoadTypes.MediumRoadDecorationGrass, new KeyValuePair<string, string>("highway", "tertiary"));
-            reverseMapping.Add(RoadTypes.MediumRoadDecorationTrees, new KeyValuePair<string, string>("highway", "tertiary"));
+            reverseMapping.Add(RoadTypes.MediumRoadDecorationGrass,
+                new KeyValuePair<string, string>("highway", "tertiary"));
+            reverseMapping.Add(RoadTypes.MediumRoadDecorationTrees,
+                new KeyValuePair<string, string>("highway", "tertiary"));
             reverseMapping.Add(RoadTypes.MediumRoadElevated, new KeyValuePair<string, string>("highway", "tertiary"));
 
             reverseMapping.Add(RoadTypes.LargeRoad, new KeyValuePair<string, string>("highway", "secondary"));
             reverseMapping.Add(RoadTypes.LargeRoadBridge, new KeyValuePair<string, string>("highway", "secondary"));
-            reverseMapping.Add(RoadTypes.LargeRoadDecorationGrass, new KeyValuePair<string, string>("highway", "secondary"));
-            reverseMapping.Add(RoadTypes.LargeRoadDecorationTrees, new KeyValuePair<string, string>("highway", "secondary"));
+            reverseMapping.Add(RoadTypes.LargeRoadDecorationGrass,
+                new KeyValuePair<string, string>("highway", "secondary"));
+            reverseMapping.Add(RoadTypes.LargeRoadDecorationTrees,
+                new KeyValuePair<string, string>("highway", "secondary"));
             reverseMapping.Add(RoadTypes.LargeRoadElevated, new KeyValuePair<string, string>("highway", "secondary"));
 
             reverseMapping.Add(RoadTypes.LargeOneway, new KeyValuePair<string, string>("highway", "trunk"));
             reverseMapping.Add(RoadTypes.LargeOnewayBridge, new KeyValuePair<string, string>("highway", "trunk"));
-            reverseMapping.Add(RoadTypes.LargeOnewayDecorationGrass, new KeyValuePair<string, string>("highway", "trunk"));
-            reverseMapping.Add(RoadTypes.LargeOnewayDecorationTrees, new KeyValuePair<string, string>("highway", "trunk"));
+            reverseMapping.Add(RoadTypes.LargeOnewayDecorationGrass,
+                new KeyValuePair<string, string>("highway", "trunk"));
+            reverseMapping.Add(RoadTypes.LargeOnewayDecorationTrees,
+                new KeyValuePair<string, string>("highway", "trunk"));
             reverseMapping.Add(RoadTypes.LargeOnewayElevated, new KeyValuePair<string, string>("highway", "trunk"));
 
             reverseMapping.Add(RoadTypes.AirplaneTaxiway, new KeyValuePair<string, string>("aeroway", "runway"));
             reverseMapping.Add(RoadTypes.Dam, new KeyValuePair<string, string>("waterway", "dam"));
 
-            pavedMapping.Add("paved",true);
+            pavedMapping.Add("paved", true);
             pavedMapping.Add("asphalt", true);
             pavedMapping.Add("cobblestone", true);
             pavedMapping.Add("cobblestone:flattened", true);
@@ -211,7 +225,8 @@ namespace Mapper
                         invert = true;
                     }
                 }
-                else if(tag.k.Trim().ToLower() =="bridge"){
+                else if (tag.k.Trim().ToLower() == "bridge")
+                {
                     layer = Math.Max(layer, 1);
                 }
                 else if (tag.k.Trim().ToLower() == "layer")
@@ -220,7 +235,7 @@ namespace Mapper
                 }
                 else if (tag.k.Trim().ToLower() == "surface")
                 {
-                    surface = tag.v.Trim().ToLower();                    
+                    surface = tag.v.Trim().ToLower();
                 }
                 else
                 {
@@ -246,7 +261,7 @@ namespace Mapper
                 points = new List<string>();
                 if (invert)
                 {
-                    for (var i = way.nd.Count() - 1; i >= 0; i -=1 )
+                    for (var i = way.nd.Count() - 1; i >= 0; i -= 1)
                     {
                         points.Add(way.nd[i].@ref);
                     }
@@ -268,25 +283,26 @@ namespace Mapper
         {
             if (elevation > 0)
             {
-                tags.Add(new osmWayTag { k = "bridge", v = "yes" });
-                tags.Add(new osmWayTag { k = "level", v = Mathf.FloorToInt(elevation / 12).ToString() });
+                tags.Add(new osmWayTag {k = "bridge", v = "yes"});
+                tags.Add(new osmWayTag {k = "level", v = Mathf.FloorToInt(elevation / 12).ToString()});
             }
-            var name = netSegment.Info.name.Replace(" ","");
+            var name = netSegment.Info.name.Replace(" ", "");
             if (name.ToLower().Contains("oneway") || name.ToLower().Contains("highway"))
             {
-                tags.Add(new osmWayTag { k = "oneway", v = "yes" });
+                tags.Add(new osmWayTag {k = "oneway", v = "yes"});
             }
             var roadType = RoadTypes.None;
-            try{                
-                roadType = (RoadTypes)Enum.Parse(typeof(RoadTypes),name);
+            try
+            {
+                roadType = (RoadTypes) Enum.Parse(typeof(RoadTypes), name);
             }
-            catch 
+            catch
             {
                 return false;
             }
             if (reverseMapping.ContainsKey(roadType))
             {
-                tags.Add(new osmWayTag { k = reverseMapping[roadType].Key, v = reverseMapping[roadType].Value });
+                tags.Add(new osmWayTag {k = reverseMapping[roadType].Key, v = reverseMapping[roadType].Value});
                 return true;
             }
             return false;
@@ -296,15 +312,16 @@ namespace Mapper
         {
             if (pavedMapping.ContainsKey(surface))
             {
-                if (pavedMapping[surface]){
-                    if (rt == RoadTypes.GravelRoad){                        
+                if (pavedMapping[surface])
+                {
+                    if (rt == RoadTypes.GravelRoad)
+                    {
                         return RoadTypes.BasicRoad;
                     }
                     else if (rt == RoadTypes.PedestrianGravel)
                     {
-                        
                         return RoadTypes.PedestrianPavement;
-                    }                    
+                    }
                 }
                 else
                 {
@@ -334,7 +351,7 @@ namespace Mapper
                 case RoadTypes.MediumRoadDecorationGrass:
                 case RoadTypes.BasicRoadDecorationGrass:
                     return RoadTypes.OnewayRoadDecorationGrass;
-                case RoadTypes.LargeRoad:                    
+                case RoadTypes.LargeRoad:
                 case RoadTypes.LargeRoadDecorationGrass:
                 case RoadTypes.LargeRoadDecorationTrees:
                 case RoadTypes.Highway:
@@ -355,27 +372,27 @@ namespace Mapper
         //    endLatLon = new Vector2(Math.Max(endLatLon.x, (float)node.lon), Math.Max(endLatLon.y, (float)node.lat));
         //}
 
-        public void InitBoundingBox(osmBounds bounds,double scale)
+        public void InitBoundingBox(osmBounds bounds, double scale)
         {
-
-            this.middleLatLon = new Vector2((float)(bounds.minlon + bounds.maxlon) / 2f, (float)(bounds.minlat + bounds.maxlat) / 2f);
+            this.middleLatLon = new Vector2((float) (bounds.minlon + bounds.maxlon) / 2f,
+                (float) (bounds.minlat + bounds.maxlat) / 2f);
             var lat = Deg2rad(this.middleLatLon.y);
             var radius = WGS84EarthRadius(lat);
             var pradius = radius * Math.Cos(lat);
             scaleX = scale * GameSizeGameCoordinates / Rad2deg(GameSizeMetres / pradius);
             scaleY = scale * GameSizeGameCoordinates / Rad2deg(GameSizeMetres / radius);
-
         }
 
         public void MapCoordinates(osmNode node)
         {
             Vector2 pos = Vector2.zero;
-            GetPos(node.lat, node.lon,ref pos);
+            GetPos(node.lat, node.lon, ref pos);
         }
 
         public bool GetPos(decimal lat, decimal lon, ref Vector2 pos)
         {
-            pos = new Vector2((float)(((float)lat - middleLatLon.x) * scaleX), (float)(((float)lon - middleLatLon.y) * scaleY));
+            pos = new Vector2((float) (((float) lat - middleLatLon.x) * scaleX),
+                (float) (((float) lon - middleLatLon.y) * scaleY));
 
             if (Math.Abs(pos.x) > maxBounds || Math.Abs(pos.y) > maxBounds)
             {
@@ -388,8 +405,8 @@ namespace Mapper
 
         internal void GetPos(Vector3 vector3, out decimal lon, out decimal lat)
         {
-            lon = (decimal)((vector3.x / scaleX) + middleLatLon.x);
-            lat = (decimal)((vector3.z / scaleY) + middleLatLon.y);
+            lon = (decimal) ((vector3.x / scaleX) + middleLatLon.x);
+            lat = (decimal) ((vector3.z / scaleY) + middleLatLon.y);
         }
 
         private const double WGS84_a = 6378137.0; // Major semiaxis [m]
@@ -416,7 +433,6 @@ namespace Mapper
         }
 
 
-
         internal void GetTags(ushort buildingId, Building data, List<osmWayTag> tags, ref string amenity)
         {
             var service = data.Info.m_class.m_service;
@@ -428,7 +444,8 @@ namespace Mapper
             switch (service)
             {
                 case ItemClass.Service.Beautification:
-                    if (className.Contains("marker")){
+                    if (className.Contains("marker"))
+                    {
                         return;
                     }
                     landuse = "recreation_ground";
@@ -443,17 +460,17 @@ namespace Mapper
                     building = "commercial";
                     break;
                 case ItemClass.Service.Industrial:
-                    building = "industrial";               
+                    building = "industrial";
                     break;
                 case ItemClass.Service.Garbage:
-                    landuse = "landfill";               
+                    landuse = "landfill";
                     break;
                 case ItemClass.Service.Education:
                     amenity = "school";
-                    building = "school";               
+                    building = "school";
                     break;
                 case ItemClass.Service.Electricity:
-                    tags.Add(new osmWayTag { k = "power", v = "plant" });
+                    tags.Add(new osmWayTag {k = "power", v = "plant"});
                     break;
                 case ItemClass.Service.FireDepartment:
                     amenity = "fire_station";
@@ -484,7 +501,7 @@ namespace Mapper
                     }
                     building = "train_station";
                     break;
-                case ItemClass.Service.Tourism:                    
+                case ItemClass.Service.Tourism:
                     building = "hotel";
                     break;
                 default:
@@ -498,19 +515,18 @@ namespace Mapper
                 name = Singleton<InstanceManager>.instance.GetName(id);
             }
 
-            if (landuse != ""){
-                tags.Add(new osmWayTag { k = "landuse", v = landuse });
+            if (landuse != "")
+            {
+                tags.Add(new osmWayTag {k = "landuse", v = landuse});
             }
             if (building != "")
             {
-                tags.Add(new osmWayTag { k = "building", v = building });
+                tags.Add(new osmWayTag {k = "building", v = building});
             }
             if (name != "")
             {
-                tags.Add(new osmWayTag { k = "name", v = name });
+                tags.Add(new osmWayTag {k = "name", v = name});
             }
-
         }
     }
-
 }

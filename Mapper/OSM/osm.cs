@@ -1,17 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace Mapper.OSM
+﻿namespace Mapper.OSM
 {
-
     /// <remarks/>
     [System.Xml.Serialization.XmlTypeAttribute(AnonymousType = true)]
     [System.Xml.Serialization.XmlRootAttribute(Namespace = "", IsNullable = false)]
     public partial class osm
     {
-
         private string noteField;
         private bool uploadField;
 
@@ -32,124 +25,70 @@ namespace Mapper.OSM
         /// <upload/>
         public bool upload
         {
-            get
-            {
-                return this.uploadField;
-            }
-            set
-            {
-                this.uploadField = value;
-            }
+            get { return this.uploadField; }
+            set { this.uploadField = value; }
         }
 
 
         /// <remarks/>
         public string note
         {
-            get
-            {
-                return this.noteField;
-            }
-            set
-            {
-                this.noteField = value;
-            }
+            get { return this.noteField; }
+            set { this.noteField = value; }
         }
 
         /// <remarks/>
         public osmMeta meta
         {
-            get
-            {
-                return this.metaField;
-            }
-            set
-            {
-                this.metaField = value;
-            }
+            get { return this.metaField; }
+            set { this.metaField = value; }
         }
 
         /// <remarks/>
         public osmBounds bounds
         {
-            get
-            {
-                return this.boundsField;
-            }
-            set
-            {
-                this.boundsField = value;
-            }
+            get { return this.boundsField; }
+            set { this.boundsField = value; }
         }
 
         /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute("node")]
         public osmNode[] node
         {
-            get
-            {
-                return this.nodeField;
-            }
-            set
-            {
-                this.nodeField = value;
-            }
+            get { return this.nodeField; }
+            set { this.nodeField = value; }
         }
 
         /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute("way")]
         public osmWay[] way
         {
-            get
-            {
-                return this.wayField;
-            }
-            set
-            {
-                this.wayField = value;
-            }
+            get { return this.wayField; }
+            set { this.wayField = value; }
         }
 
         /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute("relation")]
         public osmRelation[] relation
         {
-            get
-            {
-                return this.relationField;
-            }
-            set
-            {
-                this.relationField = value;
-            }
+            get { return this.relationField; }
+            set { this.relationField = value; }
         }
 
         /// <remarks/>
         [System.Xml.Serialization.XmlAttributeAttribute()]
         public decimal version
         {
-            get
-            {
-                return this.versionField;
-            }
-            set
-            {
-                this.versionField = value;
-            }
+            get { return this.versionField; }
+            set { this.versionField = value; }
         }
 
         /// <remarks/>
         [System.Xml.Serialization.XmlAttributeAttribute()]
         public string generator
         {
-            get
-            {
-                return this.generatorField;
-            }
-            set
-            {
-                this.generatorField = value;
-            }
+            get { return this.generatorField; }
+            set { this.generatorField = value; }
         }
     }
 
@@ -157,21 +96,14 @@ namespace Mapper.OSM
     [System.Xml.Serialization.XmlTypeAttribute(AnonymousType = true)]
     public partial class osmMeta
     {
-
         private System.DateTime osm_baseField;
 
         /// <remarks/>
         [System.Xml.Serialization.XmlAttributeAttribute()]
         public System.DateTime osm_base
         {
-            get
-            {
-                return this.osm_baseField;
-            }
-            set
-            {
-                this.osm_baseField = value;
-            }
+            get { return this.osm_baseField; }
+            set { this.osm_baseField = value; }
         }
     }
 
@@ -179,7 +111,6 @@ namespace Mapper.OSM
     [System.Xml.Serialization.XmlTypeAttribute(AnonymousType = true)]
     public partial class osmBounds
     {
-
         private decimal minlatField;
 
         private decimal minlonField;
@@ -192,56 +123,32 @@ namespace Mapper.OSM
         [System.Xml.Serialization.XmlAttributeAttribute()]
         public decimal minlat
         {
-            get
-            {
-                return this.minlatField;
-            }
-            set
-            {
-                this.minlatField = value;
-            }
+            get { return this.minlatField; }
+            set { this.minlatField = value; }
         }
 
         /// <remarks/>
         [System.Xml.Serialization.XmlAttributeAttribute()]
         public decimal minlon
         {
-            get
-            {
-                return this.minlonField;
-            }
-            set
-            {
-                this.minlonField = value;
-            }
+            get { return this.minlonField; }
+            set { this.minlonField = value; }
         }
 
         /// <remarks/>
         [System.Xml.Serialization.XmlAttributeAttribute()]
         public decimal maxlat
         {
-            get
-            {
-                return this.maxlatField;
-            }
-            set
-            {
-                this.maxlatField = value;
-            }
+            get { return this.maxlatField; }
+            set { this.maxlatField = value; }
         }
 
         /// <remarks/>
         [System.Xml.Serialization.XmlAttributeAttribute()]
         public decimal maxlon
         {
-            get
-            {
-                return this.maxlonField;
-            }
-            set
-            {
-                this.maxlonField = value;
-            }
+            get { return this.maxlonField; }
+            set { this.maxlonField = value; }
         }
     }
 
@@ -249,7 +156,6 @@ namespace Mapper.OSM
     [System.Xml.Serialization.XmlTypeAttribute(AnonymousType = true)]
     public partial class osmNode
     {
-
         private osmNodeTag[] tagField;
 
         private string idField;
@@ -272,126 +178,72 @@ namespace Mapper.OSM
         [System.Xml.Serialization.XmlElementAttribute("tag")]
         public osmNodeTag[] tag
         {
-            get
-            {
-                return this.tagField;
-            }
-            set
-            {
-                this.tagField = value;
-            }
+            get { return this.tagField; }
+            set { this.tagField = value; }
         }
 
         /// <remarks/>
         [System.Xml.Serialization.XmlAttributeAttribute()]
         public string id
         {
-            get
-            {
-                return this.idField;
-            }
-            set
-            {
-                this.idField = value;
-            }
+            get { return this.idField; }
+            set { this.idField = value; }
         }
 
         /// <remarks/>
         [System.Xml.Serialization.XmlAttributeAttribute()]
         public decimal lat
         {
-            get
-            {
-                return this.latField;
-            }
-            set
-            {
-                this.latField = value;
-            }
+            get { return this.latField; }
+            set { this.latField = value; }
         }
 
         /// <remarks/>
         [System.Xml.Serialization.XmlAttributeAttribute()]
         public decimal lon
         {
-            get
-            {
-                return this.lonField;
-            }
-            set
-            {
-                this.lonField = value;
-            }
+            get { return this.lonField; }
+            set { this.lonField = value; }
         }
 
         /// <remarks/>
         [System.Xml.Serialization.XmlAttributeAttribute()]
         public int version
         {
-            get
-            {
-                return this.versionField;
-            }
-            set
-            {
-                this.versionField = value;
-            }
+            get { return this.versionField; }
+            set { this.versionField = value; }
         }
 
         /// <remarks/>
         [System.Xml.Serialization.XmlAttributeAttribute()]
         public System.DateTime timestamp
         {
-            get
-            {
-                return this.timestampField;
-            }
-            set
-            {
-                this.timestampField = value;
-            }
+            get { return this.timestampField; }
+            set { this.timestampField = value; }
         }
 
         /// <remarks/>
         [System.Xml.Serialization.XmlAttributeAttribute()]
         public uint changeset
         {
-            get
-            {
-                return this.changesetField;
-            }
-            set
-            {
-                this.changesetField = value;
-            }
+            get { return this.changesetField; }
+            set { this.changesetField = value; }
         }
 
         /// <remarks/>
         [System.Xml.Serialization.XmlAttributeAttribute()]
         public uint uid
         {
-            get
-            {
-                return this.uidField;
-            }
-            set
-            {
-                this.uidField = value;
-            }
+            get { return this.uidField; }
+            set { this.uidField = value; }
         }
 
         /// <remarks/>
         [System.Xml.Serialization.XmlAttributeAttribute()]
         public string user
         {
-            get
-            {
-                return this.userField;
-            }
-            set
-            {
-                this.userField = value;
-            }
+            get { return this.userField; }
+            set { this.userField = value; }
         }
     }
 
@@ -399,7 +251,6 @@ namespace Mapper.OSM
     [System.Xml.Serialization.XmlTypeAttribute(AnonymousType = true)]
     public partial class osmNodeTag
     {
-
         private string kField;
 
         private string vField;
@@ -408,28 +259,16 @@ namespace Mapper.OSM
         [System.Xml.Serialization.XmlAttributeAttribute()]
         public string k
         {
-            get
-            {
-                return this.kField;
-            }
-            set
-            {
-                this.kField = value;
-            }
+            get { return this.kField; }
+            set { this.kField = value; }
         }
 
         /// <remarks/>
         [System.Xml.Serialization.XmlAttributeAttribute()]
         public string v
         {
-            get
-            {
-                return this.vField;
-            }
-            set
-            {
-                this.vField = value;
-            }
+            get { return this.vField; }
+            set { this.vField = value; }
         }
     }
 
@@ -437,7 +276,6 @@ namespace Mapper.OSM
     [System.Xml.Serialization.XmlTypeAttribute(AnonymousType = true)]
     public partial class osmWay
     {
-
         private osmWayND[] ndField;
 
         private osmWayTag[] tagField;
@@ -458,112 +296,64 @@ namespace Mapper.OSM
         [System.Xml.Serialization.XmlElementAttribute("nd")]
         public osmWayND[] nd
         {
-            get
-            {
-                return this.ndField;
-            }
-            set
-            {
-                this.ndField = value;
-            }
+            get { return this.ndField; }
+            set { this.ndField = value; }
         }
 
         /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute("tag")]
         public osmWayTag[] tag
         {
-            get
-            {
-                return this.tagField;
-            }
-            set
-            {
-                this.tagField = value;
-            }
+            get { return this.tagField; }
+            set { this.tagField = value; }
         }
 
         /// <remarks/>
         [System.Xml.Serialization.XmlAttributeAttribute()]
         public uint id
         {
-            get
-            {
-                return this.idField;
-            }
-            set
-            {
-                this.idField = value;
-            }
+            get { return this.idField; }
+            set { this.idField = value; }
         }
 
         /// <remarks/>
         [System.Xml.Serialization.XmlAttributeAttribute()]
         public int version
         {
-            get
-            {
-                return this.versionField;
-            }
-            set
-            {
-                this.versionField = value;
-            }
+            get { return this.versionField; }
+            set { this.versionField = value; }
         }
 
         /// <remarks/>
         [System.Xml.Serialization.XmlAttributeAttribute()]
         public System.DateTime timestamp
         {
-            get
-            {
-                return this.timestampField;
-            }
-            set
-            {
-                this.timestampField = value;
-            }
+            get { return this.timestampField; }
+            set { this.timestampField = value; }
         }
 
         /// <remarks/>
         [System.Xml.Serialization.XmlAttributeAttribute()]
         public uint changeset
         {
-            get
-            {
-                return this.changesetField;
-            }
-            set
-            {
-                this.changesetField = value;
-            }
+            get { return this.changesetField; }
+            set { this.changesetField = value; }
         }
 
         /// <remarks/>
         [System.Xml.Serialization.XmlAttributeAttribute()]
         public uint uid
         {
-            get
-            {
-                return this.uidField;
-            }
-            set
-            {
-                this.uidField = value;
-            }
+            get { return this.uidField; }
+            set { this.uidField = value; }
         }
 
         /// <remarks/>
         [System.Xml.Serialization.XmlAttributeAttribute()]
         public string user
         {
-            get
-            {
-                return this.userField;
-            }
-            set
-            {
-                this.userField = value;
-            }
+            get { return this.userField; }
+            set { this.userField = value; }
         }
     }
 
@@ -571,21 +361,14 @@ namespace Mapper.OSM
     [System.Xml.Serialization.XmlTypeAttribute(AnonymousType = true)]
     public partial class osmWayND
     {
-
         private string refField;
 
         /// <remarks/>
         [System.Xml.Serialization.XmlAttributeAttribute()]
         public string @ref
         {
-            get
-            {
-                return this.refField;
-            }
-            set
-            {
-                this.refField = value;
-            }
+            get { return this.refField; }
+            set { this.refField = value; }
         }
     }
 
@@ -593,7 +376,6 @@ namespace Mapper.OSM
     [System.Xml.Serialization.XmlTypeAttribute(AnonymousType = true)]
     public partial class osmWayTag
     {
-
         private string kField;
 
         private string vField;
@@ -602,28 +384,16 @@ namespace Mapper.OSM
         [System.Xml.Serialization.XmlAttributeAttribute()]
         public string k
         {
-            get
-            {
-                return this.kField;
-            }
-            set
-            {
-                this.kField = value;
-            }
+            get { return this.kField; }
+            set { this.kField = value; }
         }
 
         /// <remarks/>
         [System.Xml.Serialization.XmlAttributeAttribute()]
         public string v
         {
-            get
-            {
-                return this.vField;
-            }
-            set
-            {
-                this.vField = value;
-            }
+            get { return this.vField; }
+            set { this.vField = value; }
         }
     }
 
@@ -631,7 +401,6 @@ namespace Mapper.OSM
     [System.Xml.Serialization.XmlTypeAttribute(AnonymousType = true)]
     public partial class osmRelation
     {
-
         private osmRelationMember[] memberField;
 
         private osmRelationTag[] tagField;
@@ -652,112 +421,64 @@ namespace Mapper.OSM
         [System.Xml.Serialization.XmlElementAttribute("member")]
         public osmRelationMember[] member
         {
-            get
-            {
-                return this.memberField;
-            }
-            set
-            {
-                this.memberField = value;
-            }
+            get { return this.memberField; }
+            set { this.memberField = value; }
         }
 
         /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute("tag")]
         public osmRelationTag[] tag
         {
-            get
-            {
-                return this.tagField;
-            }
-            set
-            {
-                this.tagField = value;
-            }
+            get { return this.tagField; }
+            set { this.tagField = value; }
         }
 
         /// <remarks/>
         [System.Xml.Serialization.XmlAttributeAttribute()]
         public uint id
         {
-            get
-            {
-                return this.idField;
-            }
-            set
-            {
-                this.idField = value;
-            }
+            get { return this.idField; }
+            set { this.idField = value; }
         }
 
         /// <remarks/>
         [System.Xml.Serialization.XmlAttributeAttribute()]
         public int version
         {
-            get
-            {
-                return this.versionField;
-            }
-            set
-            {
-                this.versionField = value;
-            }
+            get { return this.versionField; }
+            set { this.versionField = value; }
         }
 
         /// <remarks/>
         [System.Xml.Serialization.XmlAttributeAttribute()]
         public System.DateTime timestamp
         {
-            get
-            {
-                return this.timestampField;
-            }
-            set
-            {
-                this.timestampField = value;
-            }
+            get { return this.timestampField; }
+            set { this.timestampField = value; }
         }
 
         /// <remarks/>
         [System.Xml.Serialization.XmlAttributeAttribute()]
         public uint changeset
         {
-            get
-            {
-                return this.changesetField;
-            }
-            set
-            {
-                this.changesetField = value;
-            }
+            get { return this.changesetField; }
+            set { this.changesetField = value; }
         }
 
         /// <remarks/>
         [System.Xml.Serialization.XmlAttributeAttribute()]
         public uint uid
         {
-            get
-            {
-                return this.uidField;
-            }
-            set
-            {
-                this.uidField = value;
-            }
+            get { return this.uidField; }
+            set { this.uidField = value; }
         }
 
         /// <remarks/>
         [System.Xml.Serialization.XmlAttributeAttribute()]
         public string user
         {
-            get
-            {
-                return this.userField;
-            }
-            set
-            {
-                this.userField = value;
-            }
+            get { return this.userField; }
+            set { this.userField = value; }
         }
     }
 
@@ -765,7 +486,6 @@ namespace Mapper.OSM
     [System.Xml.Serialization.XmlTypeAttribute(AnonymousType = true)]
     public partial class osmRelationMember
     {
-
         private string typeField;
 
         private string refField;
@@ -776,42 +496,24 @@ namespace Mapper.OSM
         [System.Xml.Serialization.XmlAttributeAttribute()]
         public string type
         {
-            get
-            {
-                return this.typeField;
-            }
-            set
-            {
-                this.typeField = value;
-            }
+            get { return this.typeField; }
+            set { this.typeField = value; }
         }
 
         /// <remarks/>
         [System.Xml.Serialization.XmlAttributeAttribute()]
         public string @ref
         {
-            get
-            {
-                return this.refField;
-            }
-            set
-            {
-                this.refField = value;
-            }
+            get { return this.refField; }
+            set { this.refField = value; }
         }
 
         /// <remarks/>
         [System.Xml.Serialization.XmlAttributeAttribute()]
         public string role
         {
-            get
-            {
-                return this.roleField;
-            }
-            set
-            {
-                this.roleField = value;
-            }
+            get { return this.roleField; }
+            set { this.roleField = value; }
         }
     }
 
@@ -819,7 +521,6 @@ namespace Mapper.OSM
     [System.Xml.Serialization.XmlTypeAttribute(AnonymousType = true)]
     public partial class osmRelationTag
     {
-
         private string kField;
 
         private string vField;
@@ -828,30 +529,16 @@ namespace Mapper.OSM
         [System.Xml.Serialization.XmlAttributeAttribute()]
         public string k
         {
-            get
-            {
-                return this.kField;
-            }
-            set
-            {
-                this.kField = value;
-            }
+            get { return this.kField; }
+            set { this.kField = value; }
         }
 
         /// <remarks/>
         [System.Xml.Serialization.XmlAttributeAttribute()]
         public string v
         {
-            get
-            {
-                return this.vField;
-            }
-            set
-            {
-                this.vField = value;
-            }
+            get { return this.vField; }
+            set { this.vField = value; }
         }
     }
-
-
 }

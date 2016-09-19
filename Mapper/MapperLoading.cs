@@ -1,12 +1,6 @@
-﻿using ColossalFramework;
-using ColossalFramework.Math;
-using ColossalFramework.Plugins;
-using ColossalFramework.UI;
+﻿using ColossalFramework.UI;
 using ICities;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using UnityEngine;
 
 namespace Mapper
@@ -23,7 +17,8 @@ namespace Mapper
 
         public override void OnLevelLoaded(LoadMode mode)
         {
-            if (mode != LoadMode.LoadGame && mode != LoadMode.NewGame && mode != LoadMode.NewMap && mode != LoadMode.LoadMap)
+            if (mode != LoadMode.LoadGame && mode != LoadMode.NewGame && mode != LoadMode.NewMap &&
+                mode != LoadMode.LoadMap)
                 return;
             _mode = mode;
 
@@ -39,7 +34,7 @@ namespace Mapper
             UITabstrip strip = null;
             if (mode == LoadMode.NewGame || mode == LoadMode.LoadGame)
             {
-                strip =  ToolsModifierControl.mainToolbar.component as UITabstrip;
+                strip = ToolsModifierControl.mainToolbar.component as UITabstrip;
             }
             else
             {
@@ -48,13 +43,12 @@ namespace Mapper
 
             buttonObject = UITemplateManager.GetAsGameObject("MainToolbarButtonTemplate");
             buttonObject2 = UITemplateManager.GetAsGameObject("ScrollablePanelTemplate");
-            menuButton = strip.AddTab("mapperMod", buttonObject, buttonObject2, new Type[] { }) as UIButton;
+            menuButton = strip.AddTab("mapperMod", buttonObject, buttonObject2, new Type[] {}) as UIButton;
             menuButton.eventClick += uiButton_eventClick;
         }
 
         private void uiButton_eventClick(UIComponent component, UIMouseEventParameter eventParam)
         {
-
             if (!this.buildingWindow.isVisible)
             {
                 this.buildingWindow.isVisible = true;
@@ -65,12 +59,13 @@ namespace Mapper
             {
                 this.buildingWindow.isVisible = false;
                 this.buildingWindow.Hide();
-            }            
+            }
         }
 
         public override void OnLevelUnloading()
         {
-            if (_mode != LoadMode.LoadGame && _mode != LoadMode.NewGame && _mode != LoadMode.NewMap && _mode != LoadMode.LoadMap)
+            if (_mode != LoadMode.LoadGame && _mode != LoadMode.NewGame && _mode != LoadMode.NewMap &&
+                _mode != LoadMode.LoadMap)
                 return;
 
 
@@ -86,6 +81,5 @@ namespace Mapper
                 UIComponent.Destroy(menuButton);
             }
         }
-
     }
 }

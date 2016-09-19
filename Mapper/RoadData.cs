@@ -1,8 +1,5 @@
-﻿using ColossalFramework.Math;
-using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using UnityEngine;
 
 namespace Mapper
@@ -29,7 +26,7 @@ namespace Mapper
         public Vector2 controlA;
         public Vector2 controlB;
         public Vector2 endPoint;
-        
+
         public Segment(Vector2 startPoint, Vector2 endPoint)
         {
             this.startPoint = startPoint;
@@ -61,10 +58,10 @@ namespace Mapper
 
         public ulong endNode
         {
-            get { return nodes[nodes.Count()-1]; }
+            get { return nodes[nodes.Count() - 1]; }
         }
 
-        public Way(List<ulong> points, RoadTypes rt,int layer)
+        public Way(List<ulong> points, RoadTypes rt, int layer)
         {
             this.roadTypes = rt;
             this.nodes = points;

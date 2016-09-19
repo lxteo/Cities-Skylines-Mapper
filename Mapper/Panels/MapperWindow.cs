@@ -1,12 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using ColossalFramework;
-using ColossalFramework.Math;
 using ColossalFramework.UI;
-using System.Reflection;
-using System.Timers;
 using UnityEngine;
 using System.IO;
 using System.Net;
@@ -71,7 +66,7 @@ namespace Mapper
         {
             this.isInteractive = true;
             this.enabled = true;
-            
+
             width = 500;
 
             title = AddUIComponent<UILabel>();
@@ -113,8 +108,8 @@ namespace Mapper
 
             exportButton = AddUIComponent<UIButton>();
             base.Awake();
-
         }
+
         public override void Start()
         {
             base.Start();
@@ -128,8 +123,6 @@ namespace Mapper
 
         public void SetupControls()
         {
-            
-
             title.text = "Open Street Map Import";
             title.relativePosition = new Vector3(15, 15);
             title.textScale = 0.9f;
@@ -140,7 +133,7 @@ namespace Mapper
 
             SetLabel(pedestrianLabel, "Pedestrian Paths", x, y);
             SetButton(pedestriansCheck, "True", x + 114, y);
-            pedestriansCheck.eventClick +=pedestriansCheck_eventClick;
+            pedestriansCheck.eventClick += pedestriansCheck_eventClick;
             x += 190;
             SetLabel(roadsLabel, "Roads", x, y);
             SetButton(roadsCheck, "True", x + 80, y);
@@ -171,7 +164,8 @@ namespace Mapper
             y += vertPadding + 12;
 
             SetLabel(pathTextBoxLabel, "Path", x, y);
-            SetTextBox(pathTextBox, Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "map"), x + 120, y);
+            SetTextBox(pathTextBox,
+                Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "map"), x + 120, y);
             y += vertPadding - 5;
             SetButton(loadMapButton, "Load OSM From File", y);
             loadMapButton.eventClick += loadMapButton_eventClick;
@@ -201,7 +195,7 @@ namespace Mapper
             y += vertPadding;
 
             SetButton(exportButton, "Export City to .osm", y);
-            exportButton.eventClick +=exportButton_eventClick;
+            exportButton.eventClick += exportButton_eventClick;
             height = y + vertPadding + 6;
         }
 
@@ -214,14 +208,17 @@ namespace Mapper
                 decimal endLat = 0M;
                 decimal endLon = 0M;
                 var sc = double.Parse(scaleTextBox.text);
-                if (!GetCoordinates(4.5,sc,ref startLon, ref startLat, ref endLon, ref endLat))
+                if (!GetCoordinates(4.5, sc, ref startLon, ref startLat, ref endLon, ref endLat))
                 {
                     return;
                 }
                 var client = new WebClient();
                 client.Headers.Add("user-agent", "Cities Skylines Mapping Mod v1");
                 client.DownloadDataCompleted += client_DownloadDataCompleted;
-                client.DownloadDataAsync(new System.Uri("http://terrain.party/api/export?box=" + string.Format("{0},{1},{2},{3}", endLon, endLat, startLon, startLat) + "&heightmap=merged"));
+                client.DownloadDataAsync(
+                    new System.Uri("http://terrain.party/api/export?box=" +
+                                   string.Format("{0},{1},{2},{3}", endLon, endLat, startLon, startLat) +
+                                   "&heightmap=merged"));
                 errorLabel.text = "Downloading map from Terrain.Party...";
             }
             catch (Exception ex)
@@ -240,7 +237,7 @@ namespace Mapper
         private void client_DownloadDataCompleted(object sender, DownloadDataCompletedEventArgs e)
         {
             try
-            {                            
+            {
                 var image = new Image(e.Result);
                 image.Convert(Image.kFormatAlpha16);
                 if (image.width != 1081 || image.height != 1081)
@@ -248,22 +245,22 @@ namespace Mapper
                     if (!image.Resize(1081, 1081))
                     {
                         errorLabel.text = string.Concat(new object[]
-						    {
-							    "Resize not supported: ",
-							    image.format,
-							    "-",
-							    image.width,
-							    "x",
-							    image.height,
-							    " Expected: ",
-							    1081,
-							    "x",
-							    1081
-						    });
+                        {
+                            "Resize not supported: ",
+                            image.format,
+                            "-",
+                            image.width,
+                            "x",
+                            image.height,
+                            " Expected: ",
+                            1081,
+                            "x",
+                            1081
+                        });
                         return;
                     }
                 }
-                m_LastHeightmap16 = image.GetPixels();                
+                m_LastHeightmap16 = image.GetPixels();
                 SimulationManager.instance.AddAction(LoadHeightMap16(m_LastHeightmap16));
             }
             catch (Exception ex)
@@ -278,7 +275,7 @@ namespace Mapper
             {
                 var export = new OSMExport();
                 export.Export();
-                errorLabel.text = String.Format("City exported to {0}.",Directory.GetCurrentDirectory());
+                errorLabel.text = String.Format("City exported to {0}.", Directory.GetCurrentDirectory());
             }
             catch (Exception ex)
             {
@@ -313,7 +310,8 @@ namespace Mapper
 
                 var ob = GetBounds(scale, tt);
 
-                var osm = new OSMInterface(ob, scale, double.Parse(tolerance.text.Trim()), double.Parse(curveTolerance.text.Trim()), tt);
+                var osm = new OSMInterface(ob, scale, double.Parse(tolerance.text.Trim()),
+                    double.Parse(curveTolerance.text.Trim()), tt);
                 currentIndex = 0;
                 roadMaker = new RoadMaker2(osm);
                 errorLabel.text = "Data Loaded.";
@@ -327,10 +325,11 @@ namespace Mapper
             }
         }
 
-        private bool GetCoordinates(double tt, double scale, ref decimal startLon, ref decimal startLat, ref decimal endLon, ref decimal endLat)
+        private bool GetCoordinates(double tt, double scale, ref decimal startLon, ref decimal startLat,
+            ref decimal endLon, ref decimal endLat)
         {
             var text = coordinates.text.Trim();
-            var split = text.Split(new string[] { "," }, StringSplitOptions.RemoveEmptyEntries);
+            var split = text.Split(new string[] {","}, StringSplitOptions.RemoveEmptyEntries);
             decimal midLon = 0M;
             decimal midLat = 0M;
 
@@ -344,7 +343,8 @@ namespace Mapper
             }
             else if (split.Count() == 4)
             {
-                if (!decimal.TryParse(split[0], out endLon) || !decimal.TryParse(split[1], out startLat) || !decimal.TryParse(split[2], out startLon) || !decimal.TryParse(split[3], out endLat))
+                if (!decimal.TryParse(split[0], out endLon) || !decimal.TryParse(split[1], out startLat) ||
+                    !decimal.TryParse(split[2], out startLon) || !decimal.TryParse(split[3], out endLat))
                 {
                     errorLabel.text = "Coordinates must be numbers.";
                     return false;
@@ -354,7 +354,8 @@ namespace Mapper
             }
             else
             {
-                errorLabel.text = "Coordinate format wrong! Input either one or two sets of coordinates seperated by commas.";
+                errorLabel.text =
+                    "Coordinate format wrong! Input either one or two sets of coordinates seperated by commas.";
                 return false;
             }
 
@@ -401,7 +402,9 @@ namespace Mapper
             }
             try
             {
-                var osm = new OSMInterface(ob, pathTextBox.text.Trim(), double.Parse(scaleTextBox.text.Trim()), double.Parse(tolerance.text.Trim()), double.Parse(curveTolerance.text.Trim()), double.Parse(tiles.text.Trim()));
+                var osm = new OSMInterface(ob, pathTextBox.text.Trim(), double.Parse(scaleTextBox.text.Trim()),
+                    double.Parse(tolerance.text.Trim()), double.Parse(curveTolerance.text.Trim()),
+                    double.Parse(tiles.text.Trim()));
                 currentIndex = 0;
                 roadMaker = new RoadMaker2(osm);
                 errorLabel.text = "File Loaded.";
@@ -415,7 +418,7 @@ namespace Mapper
             }
         }
 
-        private void SetButton(UIButton okButton, string p1,int x, int y)
+        private void SetButton(UIButton okButton, string p1, int x, int y)
         {
             okButton.text = p1;
             okButton.normalBgSprite = "ButtonMenu";
@@ -437,25 +440,21 @@ namespace Mapper
             okButton.focusedBgSprite = "ButtonMenuFocused";
             okButton.pressedBgSprite = "ButtonMenuPressed";
             okButton.size = new Vector2(260, 24);
-            okButton.relativePosition = new Vector3((int)(width - okButton.size.x) / 2,y);
+            okButton.relativePosition = new Vector3((int) (width - okButton.size.x) / 2, y);
             okButton.textScale = 0.8f;
-
         }
 
         private void SetCheckBox(UICustomCheckbox3 pedestriansCheck, int x, int y)
         {
-
             pedestriansCheck.IsChecked = true;
             pedestriansCheck.relativePosition = new Vector3(x, y);
             pedestriansCheck.size = new Vector2(13, 13);
             pedestriansCheck.Show();
             pedestriansCheck.color = new Color32(185, 221, 254, 255);
-            pedestriansCheck.enabled = true;            
+            pedestriansCheck.enabled = true;
             pedestriansCheck.spriteName = "AchievementCheckedFalse";
-            pedestriansCheck.eventClick += (component, param) =>
-            {
-                pedestriansCheck.IsChecked = !pedestriansCheck.IsChecked;
-            };
+            pedestriansCheck.eventClick +=
+                (component, param) => { pedestriansCheck.IsChecked = !pedestriansCheck.IsChecked; };
         }
 
         private void SetTextBox(UITextField scaleTextBox, string p, int x, int y)
@@ -467,7 +466,7 @@ namespace Mapper
             scaleTextBox.color = Color.black;
             scaleTextBox.cursorBlinkTime = 0.45f;
             scaleTextBox.cursorWidth = 1;
-            scaleTextBox.selectionBackgroundColor = new Color(233,201,148,255);
+            scaleTextBox.selectionBackgroundColor = new Color(233, 201, 148, 255);
             scaleTextBox.selectionSprite = "EmptySprite";
             scaleTextBox.verticalAlignment = UIVerticalAlignment.Middle;
             scaleTextBox.padding = new RectOffset(5, 0, 5, 0);
@@ -480,7 +479,6 @@ namespace Mapper
             scaleTextBox.enabled = true;
             scaleTextBox.readOnly = false;
             scaleTextBox.builtinKeyNavigation = true;
-            
         }
 
         private void SetLabel(UILabel pedestrianLabel, string p, int x, int y)
@@ -488,7 +486,7 @@ namespace Mapper
             pedestrianLabel.relativePosition = new Vector3(x, y);
             pedestrianLabel.text = p;
             pedestrianLabel.textScale = 0.8f;
-            pedestrianLabel.size = new Vector3(120,20);
+            pedestrianLabel.size = new Vector3(120, 20);
         }
 
         private void okButton_eventClick(UIComponent component, UIMouseEventParameter eventParam)
@@ -505,10 +503,10 @@ namespace Mapper
             {
                 var pp = peds;
                 var rr = roads;
-                var hh = highways;                
+                var hh = highways;
                 if (currentIndex < roadMaker.osm.ways.Count())
                 {
-                    SimulationManager.instance.AddAction(roadMaker.MakeRoad(currentIndex,pp,rr,hh));
+                    SimulationManager.instance.AddAction(roadMaker.MakeRoad(currentIndex, pp, rr, hh));
                     currentIndex += 1;
                 }
 
@@ -523,7 +521,8 @@ namespace Mapper
                     SimulationManager.instance.AddAction(roadMaker.MakeRoad(currentIndex, pp, rr, hh));
                     currentIndex += 1;
                     var instance = Singleton<NetManager>.instance;
-                    errorLabel.text = String.Format("Making road {0} out of {1}. Nodes: {2}. Segments: {3}", currentIndex, roadMaker.osm.ways.Count(), instance.m_nodeCount, instance.m_segmentCount);
+                    errorLabel.text = String.Format("Making road {0} out of {1}. Nodes: {2}. Segments: {3}",
+                        currentIndex, roadMaker.osm.ways.Count(), instance.m_nodeCount, instance.m_segmentCount);
                 }
             }
 
@@ -552,5 +551,5 @@ namespace Mapper
             base.Update();
             spriteName = IsChecked ? "AchievementCheckedTrue" : "AchievementCheckedFalse";
         }
-    }    
+    }
 }
