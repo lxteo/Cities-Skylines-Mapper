@@ -13,7 +13,7 @@ namespace Mapper
         public OSM.OSMInterface osm;
         private Randomizer rand;
 
-        private Dictionary<RoadTypes, NetInfo> netInfos = new Dictionary<RoadTypes, NetInfo>();
+        private Dictionary<RoadTypes, NetInfo> osmRoadTypeToGameRoadTypeMap = new Dictionary<RoadTypes, NetInfo>();
         private Dictionary<ulong, ushort> nodeMap = new Dictionary<ulong, ushort>();
 
         public RoadMaker2(OSM.OSMInterface osm)
@@ -21,22 +21,22 @@ namespace Mapper
             this.osm = osm;
             this.rand = new Randomizer(0u);
 
-            var roadTypes = Enum.GetNames(typeof(RoadTypes));
+            var roadTypeNames = Enum.GetNames(typeof(RoadTypes));
             for (var i = 0; i < PrefabCollection<NetInfo>.PrefabCount(); i += 1)
             {
-                var pp = PrefabCollection<NetInfo>.GetPrefab((uint) i);
-                if (pp != null)
+                var roadAsset = PrefabCollection<NetInfo>.GetPrefab((uint) i);
+                if (roadAsset != null)
                 {
-                    if (roadTypes.Contains(pp.name.Replace(" ", "")))
+                    if (roadTypeNames.Contains(roadAsset.name.Replace(" ", "")))
                     {
-                        netInfos.Add((RoadTypes) Enum.Parse(typeof(RoadTypes), pp.name.Replace(" ", "")), pp);
+                        osmRoadTypeToGameRoadTypeMap.Add((RoadTypes) Enum.Parse(typeof(RoadTypes), roadAsset.name.Replace(" ", "")), roadAsset);
                     }
                 }
             }
         }
 
 
-        public IEnumerator MakeRoad(int p, bool pedestrians, bool roads, bool highways)
+        public IEnumerator Make(int p, bool shouldMakePedestrian, bool shouldMakeRoad, bool shouldMakeHighway)
         {
             var nm = Singleton<NetManager>.instance;
 
@@ -44,106 +44,125 @@ namespace Mapper
             {
                 yield return null;
             }
-            var way = osm.ways.ElementAt(p);
-            NetInfo ni = null;
+            var osmMappedRoad = osm.ways.ElementAt(p);
+            NetInfo gameRoad = null;
 
-            if (way.roadTypes == RoadTypes.None)
-            {
-                yield break;
-            }
-            if (!pedestrians && ((int) way.roadTypes <= (int) RoadTypes.PedestrianElevated))
-            {
-                yield break;
-            }
+            // --------------------------- Validation logic ---------------------------------------------------------------------------------------------------
 
-            if (!roads && (int) way.roadTypes > (int) RoadTypes.PedestrianElevated &&
-                (int) way.roadTypes < (int) RoadTypes.TrainTrack)
+            // Don't make roads the don't map onto a specific type.
+            if (osmMappedRoad.roadTypes == RoadTypes.None)
             {
                 yield break;
             }
 
-            if (!highways && (int) way.roadTypes >= (int) RoadTypes.TrainTrack)
+            // Don't make pedestrian ways if option is not selected.
+            if (!shouldMakePedestrian && ((int) osmMappedRoad.roadTypes <= (int) RoadTypes.PedestrianElevated))
             {
                 yield break;
             }
 
-            if (netInfos.ContainsKey(way.roadTypes))
+            // Don't make roads if option is not selected.
+            if (!shouldMakeRoad && (int) osmMappedRoad.roadTypes > (int) RoadTypes.PedestrianElevated && (int) osmMappedRoad.roadTypes < (int) RoadTypes.TrainTrack)
             {
-                ni = netInfos[way.roadTypes];
+                yield break;
+            }
+
+            // Don't make highways if option is not selected.
+            if (!shouldMakeHighway && (int) osmMappedRoad.roadTypes >= (int) RoadTypes.TrainTrack)
+            {
+                yield break;
+            }
+
+            // ------------------------------------------------------------------------------------------------------------------------------------------------
+
+            if (osmRoadTypeToGameRoadTypeMap.ContainsKey(osmMappedRoad.roadTypes))
+            {
+                // If the current road maps onto a known road type mapping.
+                gameRoad = osmRoadTypeToGameRoadTypeMap[osmMappedRoad.roadTypes];
             }
             else
             {
-                Debug.Log("Failed to find net info: " + way.roadTypes.ToString());
+                Debug.Log("Failed to find net info: " + osmMappedRoad.roadTypes);
                 yield return null;
             }
-            float elevation = way.layer;
-            if (elevation < 0)
+
+            float osmMappedRoadElevation = osmMappedRoad.layer;
+            if (osmMappedRoadElevation < 0)
             {
+                // Don't map subsurface roads.
                 yield return null;
             }
-            else if (elevation > 0)
+            else if (osmMappedRoadElevation > 0)
             {
-                elevation *= 11f;
+                // Adjust the elevation, by what I'm assuming is a factor that normalizes real world height to game engine height.
+                osmMappedRoadElevation *= 11f;
 
                 var errors = default(ToolBase.ToolErrors);
-                ni = ni.m_netAI.GetInfo(elevation, elevation, 5f, false, false, false, false, ref errors);
+                gameRoad = gameRoad.m_netAI.GetInfo(osmMappedRoadElevation, osmMappedRoadElevation, 5f, false, false, false, false, ref errors);
             }
-            if (!osm.nodes.ContainsKey(way.startNode.ToString()) || !osm.nodes.ContainsKey(way.endNode.ToString()))
+
+            if (!osm.nodes.ContainsKey(osmMappedRoad.startNode.ToString()) || !osm.nodes.ContainsKey(osmMappedRoad.endNode.ToString()))
             {
+                // Return if this way's start and end nodes are not contained in the osm nodes data.
                 yield return null;
             }
 
+
             ushort startNode;
-            if (nodeMap.ContainsKey(way.startNode))
+            if (nodeMap.ContainsKey(osmMappedRoad.startNode))
             {
-                startNode = nodeMap[way.startNode];
-                AdjustElevation(startNode, elevation);
+                // If the node map contains the startnode for this road, adjust the elevation to the current segments elevation.
+                startNode = nodeMap[osmMappedRoad.startNode];
+                AdjustElevation(startNode, osmMappedRoadElevation);
             }
             else
             {
-                CreateNode(out startNode, ref rand, ni, osm.nodes[way.startNode.ToString()], elevation);
-                AdjustElevation(startNode, elevation);
-                nodeMap.Add(way.startNode, startNode);
+                // Otherwise, created a new node and adjust the elevation and add it to the node map.
+                CreateNode(out startNode, ref rand, gameRoad, osm.nodes[osmMappedRoad.startNode.ToString()], osmMappedRoadElevation);
+                AdjustElevation(startNode, osmMappedRoadElevation);
+                nodeMap.Add(osmMappedRoad.startNode, startNode);
             }
 
             ushort endNode;
-            if (nodeMap.ContainsKey(way.endNode))
+            if (nodeMap.ContainsKey(osmMappedRoad.endNode))
             {
-                endNode = nodeMap[way.endNode];
-                AdjustElevation(endNode, elevation);
+                // If the node map contains the endNode for this road, adjust the elevation to the current segment's value.
+                endNode = nodeMap[osmMappedRoad.endNode];
+                AdjustElevation(endNode, osmMappedRoadElevation);
             }
             else
             {
-                CreateNode(out endNode, ref rand, ni, osm.nodes[way.endNode.ToString()], elevation);
-                AdjustElevation(endNode, elevation);
-                nodeMap.Add(way.endNode, endNode);
+                // Otherwise created a new end node and adjust the elevation and add it to the node map.
+                CreateNode(out endNode, ref rand, gameRoad, osm.nodes[osmMappedRoad.endNode.ToString()], osmMappedRoadElevation);
+                AdjustElevation(endNode, osmMappedRoadElevation);
+                nodeMap.Add(osmMappedRoad.endNode, endNode);
             }
 
             var currentStartNode = startNode;
-            for (var i = 0; i < way.segments.Count(); i += 1)
+            for (var i = 0; i < osmMappedRoad.segments.Count(); i += 1)
             {
-                var segment = way.segments[i];
+                var segment = osmMappedRoad.segments[i];
                 ushort currentEndNode;
-                if (i == way.segments.Count() - 1)
+                if (i == osmMappedRoad.segments.Count() - 1)
                 {
                     currentEndNode = endNode;
                 }
                 else
                 {
-                    CreateNode(out currentEndNode, ref rand, ni, segment.endPoint, elevation);
-                    AdjustElevation(currentEndNode, elevation);
+                    CreateNode(out currentEndNode, ref rand, gameRoad, segment.endPoint, osmMappedRoadElevation);
+                    AdjustElevation(currentEndNode, osmMappedRoadElevation);
                 }
 
                 ushort segmentId;
 
-                Vector3 position = nm.m_nodes.m_buffer[(int) currentStartNode].m_position;
-                Vector3 position2 = nm.m_nodes.m_buffer[(int) currentEndNode].m_position;
+                Vector3 position = nm.m_nodes.m_buffer[currentStartNode].m_position;
+                Vector3 position2 = nm.m_nodes.m_buffer[currentEndNode].m_position;
                 if (segment.controlA.x == 0f && segment.controlB.x == 0f)
                 {
                     //    Vector3 vector = VectorUtils.NormalizeXZ(segment.endPoint - segment.startPoint);
                     Vector3 vector = position2 - position;
                     vector = VectorUtils.NormalizeXZ(vector);
-                    if (nm.CreateSegment(out segmentId, ref rand, ni, currentStartNode, currentEndNode, vector, -vector,
+                    if (nm.CreateSegment(out segmentId, ref rand, gameRoad, currentStartNode, currentEndNode, vector, -vector,
                         Singleton<SimulationManager>.instance.m_currentBuildIndex,
                         Singleton<SimulationManager>.instance.m_currentBuildIndex, false))
                     {
@@ -160,7 +179,7 @@ namespace Mapper
                     //Vector3 exit = VectorUtils.NormalizeXZ(Bezier3.Tangent(position, segment.controlA, segment.controlB, position2, 1f));
                     Vector3 entry = VectorUtils.NormalizeXZ(control - position);
                     Vector3 exit = VectorUtils.NormalizeXZ(position2 - control2);
-                    if (nm.CreateSegment(out segmentId, ref rand, ni, currentStartNode, currentEndNode, entry, -exit,
+                    if (nm.CreateSegment(out segmentId, ref rand, gameRoad, currentStartNode, currentEndNode, entry, -exit,
                         Singleton<SimulationManager>.instance.m_currentBuildIndex,
                         Singleton<SimulationManager>.instance.m_currentBuildIndex, false))
                     {
@@ -206,13 +225,12 @@ namespace Mapper
             {
                 return;
             }
-            var nm = Singleton<NetManager>.instance;
+            var netManager = Singleton<NetManager>.instance;
             if (elevation > 4)
             {
                 var errors = default(ToolBase.ToolErrors);
-                nm.m_segments.m_buffer[segmentId].Info =
-                    nm.m_segments.m_buffer[segmentId].Info.m_netAI.GetInfo(elevation, elevation, 5, false, false, false,
-                        false, ref errors);
+                netManager.m_segments.m_buffer[segmentId].Info =
+                    netManager.m_segments.m_buffer[segmentId].Info.m_netAI.GetInfo(elevation, elevation, 5, false, false, false, false, ref errors);
             }
         }
 

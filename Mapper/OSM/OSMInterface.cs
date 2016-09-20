@@ -11,7 +11,7 @@ namespace Mapper.OSM
 {
     public class OSMInterface
     {
-        public RoadMapping mapping;
+        public RoadMapping Mapping;
         private FitCurves fc;
 
         public Dictionary<string, Vector2> nodes = new Dictionary<string, Vector2>();
@@ -23,9 +23,9 @@ namespace Mapper.OSM
         public OSMInterface(osmBounds bounds, double scale, double tolerance, double curveTolerance, double tiles)
         {
             this.tolerance = tolerance;
-            this.curveError = curveTolerance;
+            curveError = curveTolerance;
 
-            mapping = new RoadMapping(tiles);
+            Mapping = new RoadMapping(tiles);
             fc = new FitCurves();
 
             var client = new WebClient();
@@ -45,9 +45,9 @@ namespace Mapper.OSM
             var nodesReader = new StreamReader(nodesMemoryStream);
             var waysReader = new StreamReader(wayssMemoryStream);
 
-            var serializer = new XmlSerializer(typeof(osm));
-            var nodesOsm = (osm) serializer.Deserialize(nodesReader);
-            var waysOsm = (osm) serializer.Deserialize(waysReader);
+            var serializer = new XmlSerializer(typeof(OsmDataResponse));
+            var nodesOsm = (OsmDataResponse) serializer.Deserialize(nodesReader);
+            var waysOsm = (OsmDataResponse) serializer.Deserialize(waysReader);
             nodesOsm.way = waysOsm.way;
 
             nodesMemoryStream.Dispose();
@@ -65,45 +65,46 @@ namespace Mapper.OSM
             this.tolerance = tolerance;
             this.curveError = curveTolerance;
 
-            mapping = new RoadMapping(tiles);
+            Mapping = new RoadMapping(tiles);
             fc = new FitCurves();
 
-            var serializer = new XmlSerializer(typeof(osm));
+            var serializer = new XmlSerializer(typeof(OsmDataResponse));
             var reader = new StreamReader(path);
 
-            var osm = (osm) serializer.Deserialize(reader);
+            var osm = serializer.Deserialize(reader) as OsmDataResponse;
             reader.Dispose();
 
-            osm.bounds = bounds;
-
-            Init(osm, scale);
+            if (osm != null)
+            {
+                osm.bounds = bounds;
+                Init(osm, scale);
+            }
         }
 
-        private void Init(osm osm, double scale)
+        private void Init(OsmDataResponse osmDataResponse, double scale)
         {
-            mapping.InitBoundingBox(osm.bounds, scale);
+            Mapping.InitBoundingBox(osmDataResponse.bounds, scale);
 
-            foreach (var node in osm.node)
+            foreach (var node in osmDataResponse.node)
             {
                 if (!nodes.ContainsKey(node.id) && node.lat != 0 && node.lon != 0)
                 {
                     Vector2 pos = Vector2.zero;
-                    if (mapping.GetPos(node.lon, node.lat, ref pos))
+                    if (Mapping.GetPos(node.lon, node.lat, ref pos))
                     {
                         nodes.Add(node.id, pos);
                     }
                 }
             }
 
-            foreach (var way in osm.way.OrderBy(c => c.changeset))
+            foreach (var way in osmDataResponse.way.OrderBy(c => c.changeset))
             {
                 RoadTypes rt = RoadTypes.None;
                 List<string> points = null;
                 int layer = 0;
 
-                if (mapping.Mapped(way, ref points, ref rt, ref layer))
+                if (Mapping.Mapped(way, ref points, ref rt, ref layer))
                 {
-                    Vector2 previousPoint = Vector2.zero;
                     var currentList = new List<ulong>();
                     for (var i = 0; i < points.Count; i += 1)
                     {
@@ -111,7 +112,6 @@ namespace Mapper.OSM
                         if (nodes.ContainsKey(pp))
                         {
                             currentList.Add(Convert.ToUInt64(pp));
-                            previousPoint = nodes[pp];
                         }
                         else
                         {
@@ -240,9 +240,6 @@ namespace Mapper.OSM
                 if (simplified != null && simplified.Count > 1)
                 {
                     way.Update(fc.FitCurve(simplified.ToArray(), curveError));
-                }
-                else
-                {
                 }
             }
 

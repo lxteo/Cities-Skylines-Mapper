@@ -51,8 +51,6 @@ namespace Mapper
 
         UIButton okButton;
 
-        UIButton exportButton;
-
         public ICities.LoadMode mode;
         RoadMaker2 roadMaker;
         bool createRoads;
@@ -106,7 +104,6 @@ namespace Mapper
 
             okButton = AddUIComponent<UIButton>();
 
-            exportButton = AddUIComponent<UIButton>();
             base.Awake();
         }
 
@@ -192,11 +189,8 @@ namespace Mapper
             SetButton(okButton, "Make Roads", y);
             okButton.eventClick += okButton_eventClick;
             okButton.Disable();
-            y += vertPadding;
+            height = y + vertPadding;
 
-            SetButton(exportButton, "Export City to .osm", y);
-            exportButton.eventClick += exportButton_eventClick;
-            height = y + vertPadding + 6;
         }
 
         private void loadTerrainParty_eventClick(UIComponent component, UIMouseEventParameter eventParam)
@@ -262,20 +256,6 @@ namespace Mapper
                 }
                 m_LastHeightmap16 = image.GetPixels();
                 SimulationManager.instance.AddAction(LoadHeightMap16(m_LastHeightmap16));
-            }
-            catch (Exception ex)
-            {
-                errorLabel.text = ex.ToString();
-            }
-        }
-
-        private void exportButton_eventClick(UIComponent component, UIMouseEventParameter eventParam)
-        {
-            try
-            {
-                var export = new OSMExport();
-                export.Export();
-                errorLabel.text = String.Format("City exported to {0}.", Directory.GetCurrentDirectory());
             }
             catch (Exception ex)
             {
@@ -506,19 +486,19 @@ namespace Mapper
                 var hh = highways;
                 if (currentIndex < roadMaker.osm.ways.Count())
                 {
-                    SimulationManager.instance.AddAction(roadMaker.MakeRoad(currentIndex, pp, rr, hh));
+                    SimulationManager.instance.AddAction(roadMaker.Make(currentIndex, pp, rr, hh));
                     currentIndex += 1;
                 }
 
                 if (currentIndex < roadMaker.osm.ways.Count())
                 {
-                    SimulationManager.instance.AddAction(roadMaker.MakeRoad(currentIndex, pp, rr, hh));
+                    SimulationManager.instance.AddAction(roadMaker.Make(currentIndex, pp, rr, hh));
                     currentIndex += 1;
                 }
 
                 if (currentIndex < roadMaker.osm.ways.Count())
                 {
-                    SimulationManager.instance.AddAction(roadMaker.MakeRoad(currentIndex, pp, rr, hh));
+                    SimulationManager.instance.AddAction(roadMaker.Make(currentIndex, pp, rr, hh));
                     currentIndex += 1;
                     var instance = Singleton<NetManager>.instance;
                     errorLabel.text = String.Format("Making road {0} out of {1}. Nodes: {2}. Segments: {3}",
